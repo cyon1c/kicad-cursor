@@ -1,0 +1,46 @@
+# Design intent
+
+name: example-board
+description: Template project for chat-driven KiCad design
+kicadVersion: "10.0"
+
+# Power domains (volts)
+rails:
+  - name: VBUS
+    voltage: 5.0
+  - name: VBAT
+    voltage: 3.7
+    notes: Li-ion nominal
+  - name: V3V3
+    voltage: 3.3
+  - name: GND
+    voltage: 0
+
+# Functional blocks the agent should implement
+blocks:
+  - id: input
+    description: USB-C input protection and power path
+    nets: [VBUS, GND]
+  - id: regulation
+    description: Buck/boost or LDO stages to V3V3
+    nets: [VBUS, VBAT, V3V3, GND]
+  - id: mcu
+    description: Main MCU module and decoupling
+    nets: [V3V3, GND]
+
+# Agent constraints
+constraints:
+  boardSizeMm: [80, 60]
+  layers: 2
+  minTrackWidthMm: 0.15
+  minClearanceMm: 0.15
+  preferGlobalLib: true
+  lcscPreferred: true
+
+# Hierarchical sheets (optional)
+sheets: []
+
+# Open questions for the agent to resolve with the user
+openQuestions:
+  - "Target load current on V3V3?"
+  - "Battery chemistry and cell count?"

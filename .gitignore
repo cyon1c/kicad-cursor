@@ -1,0 +1,30 @@
+# KiCad
+*-backups/
+*-cache/
+*.kicad_prl
+fp-info-cache
+*.lck
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+*.key
+
+# Large datasheet binaries (keep structure, ignore bulk uploads)
+datasheets/*.pdf
+!datasheets/.gitkeep
+
+# Project-specific generated outputs
+projects/*/output/
+projects/*/#auto_saved_files#

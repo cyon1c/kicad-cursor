@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "kicad-pcb": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["kicad-mcp", "--editor-type", "pcb"]
+    },
+    "kicad-schematic": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["kicad-mcp", "--editor-type", "schematic"]
+    }
+  }
+}

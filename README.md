@@ -90,6 +90,8 @@ Project resolution order: `--project-dir` flag → `KICAD_PROJECT_DIR` env var �
 
 ## License
 
-[GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later).
+[GNU Affero General Public License v3.0](LICENSE) or later (`AGPL-3.0-or-later`).
+
+Copyright (C) 2026 Alleycat Asset Acquisitions. See [NOTICE](NOTICE) for the copyright and warranty statement.
 
 Hardware designs you create with these tools are separate works — license your boards under whatever terms you choose (e.g. CERN-OHL, proprietary). This repository is software only.

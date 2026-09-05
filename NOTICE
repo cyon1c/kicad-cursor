@@ -1,0 +1,24 @@
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+kicad-cursor
+Copyright (C) 2026 Alleycat Asset Acquisitions
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+The full license text is in LICENSE (verbatim GNU AGPL v3), kept unmodified
+so automated license detection recognizes it.
+
+Hardware designs produced with these tools are separate works. This license
+covers the software in this repository only — license your boards under
+whatever terms you choose (CERN-OHL, proprietary, etc.).

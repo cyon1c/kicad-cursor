@@ -1,0 +1,63 @@
+# Part identity registry: symbol → LCSC, with selection status.
+#
+# Status lifecycle (see docs/workflow-plan.md §1):
+#   ic-locked      ICs / electromechanical parts, chosen at IC intake — LCSC required
+#   value-only     Passive drawn on the schematic with a value, LCSC not yet chosen
+#   passive-locked Passive with LCSC assigned, after schematic review signed off
+#
+# Rule: passives stay at value-only until review passes. Do not fill passive LCSC
+# numbers during IC intake or while the user is still drawing.
+
+library: global
+path: ${GLOBAL}
+
+parts:
+  # --- ICs and electromechanical (IC intake, @component-select IC mode) ---
+  - symbol: BQ25895RTWR
+    mpn: BQ25895RTWR
+    lcsc: C80200
+    role: battery charger / power path
+    block: input
+    status: ic-locked
+
+  - symbol: TPS63802DLAR
+    mpn: TPS63802DLAR
+    lcsc: C2845237
+    role: buck-boost regulator
+    block: regulation
+    status: ic-locked
+
+  - symbol: ESP32-S3-WROOM-1(N8R8)
+    mpn: ESP32-S3-WROOM-1-N8R8
+    lcsc: null
+    role: MCU module
+    block: mcu
+    status: ic-locked
+    notes: Module sourced outside JLC — LCSC null is intentional
+
+  # --- Passives after the schematic is drawn (value known, LCSC pending) ---
+  - symbol: C0402
+    ref: C12
+    value: 100nF
+    role: VIN decoupling
+    block: regulation
+    status: value-only
+
+  - symbol: R0402
+    ref: R7
+    value: 100k
+    role: feedback divider top — critical
+    block: regulation
+    status: value-only
+
+  # --- Passives after review sign-off (@component-select passive mode) ---
+  - symbol: C0402
+    ref: C1
+    value: 10uF
+    lcsc: Cxxxxxx         # real C-number, assigned at passive finalize
+    role: VBUS bulk
+    block: input
+    status: passive-locked
+
+# Import a missing library part:
+#   uv run python scripts/run_step.py fetch-part --lcsc-id <LCSC_ID>

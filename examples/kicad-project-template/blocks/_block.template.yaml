@@ -1,0 +1,35 @@
+# Optional per-block spec. Copy to <your-project>/blocks/<block-id>.yaml.
+# Block id in the filename must match a design.yaml blocks[].id
+#
+# This is intent for the human to draw from — not a placement script.
+# Agents never place or wire schematic content.
+
+id: example-block
+description: One-line purpose
+status: specified  # specified | drawn | reviewed
+
+rails: []  # subset of design.yaml rails used by this block
+
+# ICs and electromechanical parts — must exist in bom-targets.yaml as ic-locked
+ics:
+  # - refIntent: U1
+  #   symbol: global:TPS63802DLAR
+  #   lcsc: C2845237
+  #   research: research/TPS63802DLAR/
+
+# Passives by role and value. No LCSC here — assigned after review.
+passives:
+  # - refIntent: C1
+  #   symbol: global:C0402
+  #   value: 100nF
+  #   role: VIN decoupling
+  #   critical: false
+  #   source: research/TPS63802DLAR/passives-required.md
+
+nets: []  # signal nets this block introduces or consumes
+
+openQuestions:
+  - "Question to resolve before the user draws this block"
+
+drawnAt: null    # date the user finished drawing
+reviewedAt: null # date @schematic-review signed off

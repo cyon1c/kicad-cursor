@@ -1,7 +1,8 @@
-# Design intent
+# Design intent — owned by @design-consultant.
+# Describes what the board should be. The user draws the schematic from it.
 
 name: example-board
-description: Template project for chat-driven KiCad design
+description: Template metadata for chat-driven KiCad design
 kicadVersion: "10.0"
 
 # Power domains (volts)
@@ -16,19 +17,23 @@ rails:
   - name: GND
     voltage: 0
 
-# Functional blocks the agent should implement
+# Functional blocks the user will draw, one per hierarchical sheet where practical.
+# `ics` is MPN-level intent from design consultation; LCSC lives in bom-targets.yaml.
 blocks:
   - id: input
     description: USB-C input protection and power path
     nets: [VBUS, GND]
+    ics: [BQ25895RTWR]
   - id: regulation
     description: Buck/boost or LDO stages to V3V3
     nets: [VBUS, VBAT, V3V3, GND]
+    ics: [TPS63802DLAR]
   - id: mcu
     description: Main MCU module and decoupling
     nets: [V3V3, GND]
+    ics: [ESP32-S3-WROOM-1-N8R8]
 
-# Agent constraints
+# Board-level constraints (detail lives in constraints.md)
 constraints:
   boardSizeMm: [80, 60]
   layers: 2
@@ -40,7 +45,8 @@ constraints:
 # Hierarchical sheets (optional)
 sheets: []
 
-# Open questions for the agent to resolve with the user
+# Blocking questions. Mirror longer discussion in design-log/open-questions.md;
+# a question here that blocks topology must be resolved or deferred before review.
 openQuestions:
   - "Target load current on V3V3?"
   - "Battery chemistry and cell count?"

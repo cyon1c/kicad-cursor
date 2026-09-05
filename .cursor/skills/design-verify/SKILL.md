@@ -1,70 +1,55 @@
 ---
 name: design-verify
-description: Run KiCad ERC and DRC checks and interpret results before marking design work complete. Use after schematic or PCB changes, or when the user asks to validate, verify, or check a design.
+description: Ad-hoc KiCad ERC and DRC runs when the user explicitly asks to verify, validate, or check the design. Never runs automatically. For a full schematic review with intent diff and value audit, use schematic-review instead.
 ---
 
-# Design Verification
+# Design Verification (ad-hoc, opt-in)
 
-## Gate rule
+## Critical rule
 
-**Do not mark schematic or PCB work as complete until ERC/DRC have been run and results are reported.**
+**Do not run ERC or DRC after edits or any other step unless the user explicitly requests verification** (or invokes `@design-verify`).
 
-If violations remain, list them and either fix or explain why they are acceptable.
+Wrong: draw outline → run DRC automatically.
+Right: draw outline → remind user to Ctrl+S → stop.
 
-## Schematic ERC
+## This skill vs `@schematic-review`
 
-```powershell
-& "C:/Program Files/KiCad/10.0/bin/kicad-cli.exe" sch erc "projects/<board>/<board>.kicad_sch"
-```
+| | `@design-verify` | `@schematic-review` |
+|---|---|---|
+| Trigger | User says "run ERC/DRC" | User wants a design review |
+| Scope | Raw check output only | Fresh context dump + **ERC** + value audit + intent diff |
+| ERC | Only if asked | **Always required** |
+| Output | Pass/fail + violations | Review report, `design-log/reviews/<date>.md` |
 
-Or use MCP schematic tools if available.
+If the user asks for a *review*, use `@schematic-review` — it runs ERC as part of its checklist. Use this skill only for a quick standalone check.
 
-Common ERC issues:
+## Commands (via step runner)
 
-- Unconnected pins
-- Power pin not driven
-- Duplicate references
-- Footprint not assigned
-
-## PCB DRC
-
-```powershell
-& "C:/Program Files/KiCad/10.0/bin/kicad-cli.exe" pcb drc "projects/<board>/<board>.kicad_pcb"
-```
-
-Common DRC issues:
-
-- Clearance violations
-- Unrouted nets
-- Courtyard overlaps
-- Silkscreen over pads
-
-## Symbol library health
-
-After `fetchPart`:
+Uses `projectDir` from `kicad-cursor.yaml`:
 
 ```powershell
-python scripts/fix-symbol-lib.py --check
+uv run python scripts/run_step.py verify-erc
+uv run python scripts/run_step.py verify-drc
+uv run python scripts/run_step.py verify-all
 ```
 
-If exit code 1, run without `--check` to repair, then restart KiCad.
+Both checks read the **saved** files on disk. Remind the user to save in KiCad first.
+
+DRC is optional in the schematic phase — the board is expected to be incomplete.
+
+## Symbol library (only after fetch-part)
+
+```powershell
+uv run python scripts/run_step.py fix-symbol-lib
+```
 
 ## Report format
 
 ```markdown
-## Verification: <board-name>
+## Verification: <project>
 
-### ERC
-- Status: PASS | FAIL (N violations)
-- (list violations or "clean")
-
-### DRC
-- Status: PASS | FAIL (N violations)
-- (list violations or "clean")
-
-### Library
-- global.kicad_sym: OK | repaired
-
-### Ready for next step
-- Yes / No — (reason)
+### ERC — PASS | FAIL
+### DRC — PASS | FAIL (or SKIPPED — schematic phase)
 ```
+
+List violations only for checks that were requested and failed. Group by error vs warning and map each to a ref or net.

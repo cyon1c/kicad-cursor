@@ -1,14 +1,15 @@
 {
   "mcpServers": {
-    "kicad-pcb": {
+    "konnect": {
       "type": "stdio",
-      "command": "uvx",
-      "args": ["kicad-mcp", "--editor-type", "pcb"]
-    },
-    "kicad-schematic": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": ["kicad-mcp", "--editor-type", "schematic"]
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/run_konnect.ps1"
+      ]
     }
   }
 }

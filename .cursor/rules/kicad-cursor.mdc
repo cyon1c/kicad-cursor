@@ -1,0 +1,68 @@
+---
+description: kicad-cursor operates on external KiCad projects via kicad-cursor.yaml — never assume boards live in this repo.
+alwaysApply: true
+---
+
+# External KiCad project model
+
+This repository is a **toolkit**, not a board workspace.
+
+## Project paths
+
+- Read `kicad-cursor.yaml` (or `KICAD_PROJECT_DIR`) for the active KiCad project directory.
+- Never create or edit `.kicad_pro`, `.kicad_sch`, or `.kicad_pcb` files inside this repo.
+- Board metadata (`design.yaml`, `constraints.md`, `bom-targets.yaml`, `datasheets/`, `research/`, `design-log/`) lives in the **user's project directory**, not here.
+- Datasheet PDFs go in `<projectDir>/datasheets/`. Extracted output goes in `<projectDir>/datasheets/extracted/<pdf-stem>/` (never in this repo).
+- Use `examples/kicad-project-template/` only as a copy source for new boards.
+
+## The user draws schematics
+
+- Agents **never edit** `.kicad_sch` files — placement, wiring, labels, and values are the human's work in KiCad.
+- Konnect is **read-only for schematics**: design context and JLCPCB lookup only. Never call `add_schematic_component`, wiring, or placement tools.
+- Agents produce intent (`design.yaml`), research (`research/<mpn>/`), part identity (`bom-targets.yaml`), and reviews — not sheets.
+
+## Selection order: ICs before passives
+
+- After design consultation, only **ICs and electromechanical parts** get LCSC numbers and `fetch-part` imports (`status: ic-locked`).
+- Passives carry a **value field only** while drawing (`status: value-only`). LCSC numbers for passives are assigned **after** schematic review signs off (`status: passive-locked`).
+
+## Roles — one per session
+
+Invoke one specialist skill at a time to avoid role bleed:
+
+| Phase | Skill |
+|-------|-------|
+| Architecture, rails, blocks | `@design-consultant` |
+| IC intake / passive finalize | `@component-select` |
+| Per-IC pin and passive research | `@datasheet-research` |
+| Human drawing a block | `@schematic-draw` |
+| Review of a saved schematic | `@schematic-review` |
+| Session continuity notes | `@design-log` |
+
+See `docs/workflow-plan.md` for the authoritative roles, gates, and artifacts, and `docs/workflow.md` for the short version.
+
+## Running scripts
+
+```powershell
+uv run python scripts/run_step.py <step-id> [--project-dir <path>]
+```
+
+Resolution order: `--project-dir` → `KICAD_PROJECT_DIR` → `projectDir` in `kicad-cursor.yaml`.
+
+## Symbol library
+
+- Import parts with `fetch-part` into the library configured in `kicad-cursor.yaml` (`symbolLibrary.path`).
+- Do not hardcode personal library paths in committed files.
+
+## Verification
+
+- Do not run ERC/DRC ad hoc unless the user asks or invokes `@design-verify`.
+- **Exception:** a formal schematic review (`@schematic-review`) always runs `verify-erc` — a review without ERC output is incomplete.
+- ERC and DRC read the **saved** files on disk — remind the user to Ctrl+S in KiCad first.
+
+## Documentation
+
+- Workflow: `docs/workflow.md` (guide), `docs/workflow-plan.md` (authoritative plan)
+- Setup: `docs/setup.md`
+- Usage: `docs/usage.md`
+- Steps catalog: `docs/steps.md` and `steps.yaml`

@@ -1,0 +1,13 @@
+# Copy to kicad-cursor.yaml and edit paths for your machine.
+# kicad-cursor.yaml is gitignored — it is local config, not part of the repo.
+
+# KiCad project directory (folder containing your .kicad_pro file)
+projectDir: C:/path/to/my-board
+
+# Shared symbol/footprint library used by fetch-part and component-select
+symbolLibrary:
+  nickname: global
+  path: C:/path/to/global-kicad-lib
+
+# Optional: override kicad-cli location (auto-detected on Windows if omitted)
+# kicadCli: C:/Program Files/KiCad/10.0/bin/kicad-cli.exe

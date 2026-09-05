@@ -12,19 +12,37 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Python
 .venv/
-__pycache__/
+
+# Konnect binary (install via docs/setup.md)
+bin/konnect.exe
+
 *.pyc
 
-# Secrets
+# Secrets and local config
 .env
 *.key
+kicad-cursor.yaml
+.kicad-cursor.yaml
+
+# Local scratch / one-off scripts
+tmp_*/
+tmp_*
+tactile_candidates.csv
+
+# KiCad verification reports (regenerate locally)
+*-erc.rpt
+*-drc.rpt
 
 # Large datasheet binaries (keep structure, ignore bulk uploads)
 datasheets/*.pdf
 !datasheets/.gitkeep
 
-# Project-specific generated outputs
-projects/*/output/
-projects/*/#auto_saved_files#
+# KiCad board files do not belong in this toolkit repo
+projects/
+*.kicad_pro
+*.kicad_sch
+*.kicad_pcb
+
+# Optional vendored tools (clone separately if needed)
+projects/kicad-jlcpcb-tools/

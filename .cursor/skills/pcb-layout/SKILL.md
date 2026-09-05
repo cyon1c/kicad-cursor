@@ -1,16 +1,18 @@
 ---
 name: pcb-layout
-description: Place footprints, route tracks, add copper pours, and tune PCB layout via KiCad IPC MCP on an open board. Use when placing components, routing nets, defining board outline, or optimizing PCB geometry.
+description: PCB layout guidance — placement order, routing priorities, pours. Deferred until the schematic workflow is stable; use only when the user explicitly starts layout work on a board whose schematic has passed review.
 ---
 
-# PCB Layout
+# PCB Layout (deferred phase)
+
+> **Status: deferred.** The layout workflow is not defined yet — see `docs/workflow-plan.md` §7 Deferred. Do not start layout until the schematic has passed `@schematic-review` and passives are `passive-locked`. The guidance below is a starting point, not a role definition.
 
 ## Prerequisites
 
 - KiCad PCB Editor open with target board loaded
 - IPC API server enabled
 - Schematic updated and netlist imported (or board synced from schematic)
-- MCP server `kicad-pcb` connected
+- MCP server `konnect` connected; load PCB toolsets as needed (`@konnect`)
 
 ## Placement order
 
@@ -48,7 +50,7 @@ KiCad IPC does not expose a native autorouter API. Options:
 
 ## After layout changes
 
-Always run `@design-verify` (DRC) before reporting completion.
+Always run `@design-verify` (DRC) only when the user asks.
 
 ## Live feedback
 

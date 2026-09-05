@@ -1,0 +1,72 @@
+# Atomic KiCad operations for the agent.
+# One step = one command. Do not explore kipy/MCP unless adding a new step here.
+#
+# Placeholders: {project_dir} → configured KiCad project directory
+# Prerequisites are human/agent checks — not auto-run unless the step fails.
+
+steps:
+  draw-board-outline:
+    description: Draw Edge.Cuts rectangle from design.yaml boardSizeMm
+    command: uv run python scripts/draw_board_outline.py --project-dir {project_dir}
+    requires:
+      - kicad-running
+      - ipc-enabled
+      - pcb-editor-open
+    saves: remind-user-ctrl-s
+
+  test-ipc:
+    description: Confirm IPC connection and active PCB document
+    command: uv run python scripts/test_ipc.py
+    requires:
+      - kicad-running
+      - ipc-enabled
+      - pcb-editor-open
+
+  verify-erc:
+    description: Run schematic ERC via kicad-cli (disk file, not live IPC)
+    command: uv run python scripts/test_kicad_cli.py --erc-only --project-dir {project_dir}
+    requires: []
+
+  verify-drc:
+    description: Run PCB DRC via kicad-cli (disk file — save PCB in KiCad first)
+    command: uv run python scripts/test_kicad_cli.py --drc-only --project-dir {project_dir}
+    requires: []
+
+  verify-all:
+    description: Run ERC and DRC (only when user asks to verify)
+    command: uv run python scripts/test_kicad_cli.py --project-dir {project_dir}
+    requires: []
+
+  fix-symbol-lib:
+    description: Repair easyeda2kicad malformed symbol library file
+    command: uv run python scripts/fix-symbol-lib.py
+    requires: []
+
+  fetch-part:
+    description: Import LCSC part into configured symbol library
+    command: uv run python scripts/fetch_part.py {lcsc_id}
+    requires: []
+    args:
+      lcsc_id: required
+
+  extract-datasheet:
+    description: Extract PDF to markdown/tables under <project>/datasheets/extracted/<stem>/
+    command: uv run python scripts/extract_datasheet.py --project-dir {project_dir} --pdf {pdf}
+    requires: []
+    args:
+      pdf: required
+
+  dump-design-context:
+    description: Export as-built schematic context (netlist, hierarchy, open questions)
+    command: uv run python scripts/dump_design_context.py --project-dir {project_dir}
+    requires: []
+
+# Retired steps are not runnable — run_step.py only reads `steps:`.
+# Kept for provenance. See docs/workflow-plan.md §7 Phase 1.
+retiredSteps:
+  run-block:
+    retiredOn: 2026-09-05
+    reason: >
+      Agents no longer generate schematic content. The user draws schematics by hand;
+      see @schematic-draw for drawing briefs and @schematic-review for review.
+      Script scripts/run_block.py and scripts/blocks/ were removed.

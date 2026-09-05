@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repair global.kicad_sym after easyeda2kicad 1.x appends symbols outside the library block."""
+"""Repair symbol library file after easyeda2kicad 1.x appends symbols outside the library block."""
 
 from __future__ import annotations
 
@@ -8,15 +8,16 @@ import re
 import sys
 from pathlib import Path
 
-DEFAULT_SYM = Path(
-    r"C:/Users/Elli Furedy/projects/global-kicad-lib/global.kicad_sym"
-)
+from kicad_cursor_config import resolveSymbolLibraryBase
 
-# Matches a closing paren on its own line followed by orphaned symbol blocks
 ORPHAN_PATTERN = re.compile(
     r"\n\)\n(\s*\(symbol )",
     re.MULTILINE,
 )
+
+
+def defaultSymbolFile() -> Path:
+    return resolveSymbolLibraryBase() / "global.kicad_sym"
 
 
 def fixContent(content: str) -> tuple[str, bool]:
@@ -32,8 +33,7 @@ def main() -> int:
         "symbolFile",
         nargs="?",
         type=Path,
-        default=DEFAULT_SYM,
-        help="Path to global.kicad_sym",
+        help="Path to symbol library .kicad_sym (default from kicad-cursor.yaml)",
     )
     parser.add_argument(
         "--check",
@@ -42,7 +42,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    path = args.symbolFile
+    try:
+        path = args.symbolFile or defaultSymbolFile()
+    except ValueError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
+
     if not path.is_file():
         print(f"File not found: {path}", file=sys.stderr)
         return 2

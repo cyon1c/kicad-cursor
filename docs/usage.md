@@ -12,14 +12,20 @@ Copy the example config:
 Copy-Item kicad-cursor.yaml.example kicad-cursor.yaml
 ```
 
-Edit `kicad-cursor.yaml`:
+```bash
+cp kicad-cursor.yaml.example kicad-cursor.yaml
+```
+
+Edit `kicad-cursor.yaml` — forward slashes work on every platform:
 
 ```yaml
-projectDir: C:/path/to/my-board
+projectDir: ~/projects/my-board          # or C:/path/to/my-board
 symbolLibrary:
   nickname: global
-  path: C:/path/to/global-kicad-lib
+  path: ~/projects/global-kicad-lib
 ```
+
+`~` is expanded, so the same config shape works on Windows, macOS, and Linux.
 
 `kicad-cursor.yaml` is gitignored — each developer keeps their own paths.
 
@@ -29,7 +35,7 @@ symbolLibrary:
 |----------|---------|
 | `KICAD_PROJECT_DIR` | Path to KiCad project folder |
 | `KICAD_SYMBOL_LIBRARY` | Path to shared symbol library root |
-| `KICAD_CLI` | Path to `kicad-cli.exe` (optional) |
+| `KICAD_CLI` | Path to `kicad-cli` (optional — found on PATH or in the platform default otherwise) |
 
 Environment variables override the yaml file when set.
 
@@ -145,13 +151,19 @@ See [steps.md](steps.md) for the token-efficient step catalog pattern.
 
 ### Optional: shell shortcuts
 
-Put `scripts/bin` on your user PATH to call the two most frequent steps directly from any directory:
+Put `scripts/bin` on your PATH to call the two most frequent steps from any directory:
 
 ```powershell
-.\scripts\install-path-commands.ps1     # -Uninstall to remove
+.\scripts\install-path-commands.ps1        # -Uninstall to remove
 ```
 
-```powershell
+```bash
+./scripts/install-path-commands.sh         # --uninstall to remove
+```
+
+The PowerShell version edits your Windows user PATH; the shell version appends a guarded block to your shell profile (zsh, bash, or fish). Either way:
+
+```bash
 fetch-part C702003
 extract-datasheet --pdf datasheets/bq25619.pdf
 ```

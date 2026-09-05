@@ -31,9 +31,6 @@ def buildCommand(step: dict, projectDir: Path, extraArgs: dict[str, str]) -> lis
         else:
             tokens.append(part)
 
-    if tokens and tokens[0] == "wsl":
-        return ["powershell", "-NoProfile", "-Command", " ".join(tokens)]
-
     return tokens
 
 

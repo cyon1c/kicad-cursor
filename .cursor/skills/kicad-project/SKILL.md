@@ -63,9 +63,10 @@ Runs `easyeda2kicad` from the repo venv and auto-repairs the symbol library via 
 
 ## KiCad 10
 
-- CLI: auto-detected or set `kicadCli` in config
-- Config: `%APPDATA%/kicad/10.0/`
+- CLI: found on PATH, then the platform default; override with `kicadCli` in config or `KICAD_CLI`
+- Config dir: `%APPDATA%/kicad/10.0/` (Windows), `~/Library/Preferences/kicad/10.0/` (macOS), `~/.config/kicad/10.0/` (Linux)
 - IPC API only needed for PCB-phase tools
+- Paths in `kicad-cursor.yaml` accept forward slashes and `~` on every platform
 
 ## Agent rules
 

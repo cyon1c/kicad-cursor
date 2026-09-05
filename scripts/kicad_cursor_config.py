@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import shutil
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -10,10 +12,31 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_FILENAMES = ("kicad-cursor.yaml", ".kicad-cursor.yaml")
-DEFAULT_KICAD_CLI_CANDIDATES = (
-    Path(r"C:/Program Files/KiCad/10.0/bin/kicad-cli.exe"),
-    Path(r"C:/Program Files/KiCad/9.0/bin/kicad-cli.exe"),
+KICAD_CLI_CANDIDATES_BY_PLATFORM = {
+    "win32": (
+        Path("C:/Program Files/KiCad/10.0/bin/kicad-cli.exe"),
+        Path("C:/Program Files/KiCad/9.0/bin/kicad-cli.exe"),
+    ),
+    "darwin": (
+        Path("/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"),
+        Path("/Applications/KiCad.app/Contents/MacOS/kicad-cli"),
+        Path.home() / "Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    ),
+}
+KICAD_CLI_CANDIDATES_POSIX = (
+    Path("/usr/bin/kicad-cli"),
+    Path("/usr/local/bin/kicad-cli"),
+    Path("/snap/bin/kicad.kicad-cli"),
+    Path("/var/lib/flatpak/exports/bin/org.kicad.KiCad"),
 )
+
+
+def kicadCliCandidates() -> tuple[Path, ...]:
+    if sys.platform == "win32":
+        return KICAD_CLI_CANDIDATES_BY_PLATFORM["win32"]
+    if sys.platform == "darwin":
+        return KICAD_CLI_CANDIDATES_BY_PLATFORM["darwin"]
+    return KICAD_CLI_CANDIDATES_POSIX
 
 
 def loadConfig() -> dict:
@@ -100,12 +123,17 @@ def resolveKicadCli(cliPath: Optional[Path] = None) -> Path:
         if path.is_file():
             return path
 
-    for candidate in DEFAULT_KICAD_CLI_CANDIDATES:
+    onPath = shutil.which("kicad-cli")
+    if onPath:
+        return Path(onPath).resolve()
+
+    for candidate in kicadCliCandidates():
         if candidate.is_file():
             return candidate
 
     raise FileNotFoundError(
-        "kicad-cli not found. Install KiCad 10 or set kicadCli in kicad-cursor.yaml."
+        "kicad-cli not found on PATH or in the default KiCad location for this platform. "
+        "Install KiCad 10 or set kicadCli in kicad-cursor.yaml."
     )
 
 

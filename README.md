@@ -4,6 +4,8 @@ Chat-driven KiCad design utilities for Cursor agents. This repo provides MCP int
 
 **You draw the schematic.** The agents handle requirements, power architecture, part sourcing, datasheet research, and review with ERC — they never edit your `.kicad_sch`. See [docs/workflow.md](docs/workflow.md).
 
+Runs on Windows, macOS, and Linux.
+
 ## Prerequisites
 
 - KiCad 10 with IPC API enabled (`Preferences → Plugins → Enable IPC API Server`)
@@ -15,17 +17,17 @@ Chat-driven KiCad design utilities for Cursor agents. This repo provides MCP int
 ## Quick start
 
 1. Clone this repo and open it in Cursor.
-2. Copy `kicad-cursor.yaml.example` → `kicad-cursor.yaml` and set paths:
+2. Copy `kicad-cursor.yaml.example` → `kicad-cursor.yaml` and set paths (forward slashes and `~` work everywhere):
 
    ```yaml
-   projectDir: C:/path/to/my-board
+   projectDir: ~/projects/my-board
    symbolLibrary:
      nickname: global
-     path: C:/path/to/global-kicad-lib
+     path: ~/projects/global-kicad-lib
    ```
 
 3. Install dependencies: `uv sync`
-4. Install Konnect: `.\scripts\install_konnect.ps1`
+4. Install Konnect: `python scripts/install_konnect.py`
 5. Enable the `konnect` MCP server from `.cursor/mcp.json`.
 6. Copy `examples/kicad-project-template/*` into your project folder and open the project in KiCad.
 7. Start a session: `@design-consultant`.
@@ -68,7 +70,9 @@ kicad-cursor/
 
 ## Common commands
 
-```powershell
+Identical in PowerShell, zsh, and bash:
+
+```bash
 # Import an LCSC part into your symbol library
 uv run python scripts/run_step.py fetch-part --lcsc-id C80200
 
@@ -79,7 +83,7 @@ uv run python scripts/run_step.py dump-design-context
 uv run python scripts/run_step.py verify-all
 
 # Override project path for one command
-uv run python scripts/run_step.py dump-design-context --project-dir C:/path/to/my-board
+uv run python scripts/run_step.py dump-design-context --project-dir ~/projects/my-board
 ```
 
 Project resolution order: `--project-dir` flag → `KICAD_PROJECT_DIR` env var → `projectDir` in `kicad-cursor.yaml`.

@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+# Invoke fetch_part.py from the kicad-cursor repo (LCSC -> global KiCad library).
+set -e
+repoRoot=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+cd "$repoRoot"
+
+if [ "$#" -eq 0 ]; then
+    uv run python scripts/fetch_part.py --help
+    exit 1
+fi
+
+exec uv run python scripts/fetch_part.py "$@"

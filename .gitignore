@@ -15,6 +15,7 @@ Thumbs.db
 .venv/
 
 # Konnect binary (install via docs/setup.md)
+bin/konnect
 bin/konnect.exe
 
 *.pyc

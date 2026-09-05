@@ -6,6 +6,10 @@ Copy these files into your KiCad project directory (the folder containing your `
 Copy-Item -Recurse examples/kicad-project-template/* C:/path/to/my-board/
 ```
 
+```bash
+cp -R examples/kicad-project-template/. ~/projects/my-board/
+```
+
 Then:
 
 1. Create or open the KiCad project in that folder (`File → New Project`).

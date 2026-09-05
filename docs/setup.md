@@ -1,5 +1,17 @@
 # KiCad + Cursor setup
 
+Works on Windows, macOS, and Linux. Where commands differ, both forms are shown — PowerShell first, then macOS/Linux shell.
+
+## Platform paths
+
+| | Windows | macOS | Linux |
+|---|---------|-------|-------|
+| KiCad config | `%APPDATA%/kicad/10.0/` | `~/Library/Preferences/kicad/10.0/` | `~/.config/kicad/10.0/` |
+| `kicad-cli` | `C:/Program Files/KiCad/10.0/bin/kicad-cli.exe` | `/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli` | `/usr/bin/kicad-cli` |
+| JLC parts DB | `%APPDATA%/konnect/jlcpcb.db` | `~/Library/Application Support/konnect/jlcpcb.db` | `~/.local/share/konnect/jlcpcb.db` |
+
+`kicad-cli` is auto-detected from `PATH` first, then the platform default above. Override with `kicadCli` in `kicad-cursor.yaml` or the `KICAD_CLI` env var.
+
 ## 1. KiCad IPC API
 
 1. Open KiCad 10.
@@ -18,6 +30,10 @@ Copy and edit the local config:
 Copy-Item kicad-cursor.yaml.example kicad-cursor.yaml
 ```
 
+```bash
+cp kicad-cursor.yaml.example kicad-cursor.yaml
+```
+
 Set `projectDir` to your KiCad project folder and `symbolLibrary.path` to your shared library. See [usage.md](usage.md).
 
 ## 3. MCP server (Konnect)
@@ -28,13 +44,15 @@ This repo ships `.cursor/mcp.json` with one server:
 |--------|---------|
 | `konnect` | Schematic + PCB + exports + JLCPCB (on-demand toolsets) |
 
-**Install Konnect binary** (once):
+**Install Konnect binary** (once) — picks the right release asset for your OS and CPU:
 
-```powershell
-.\scripts\install_konnect.ps1
+```bash
+python scripts/install_konnect.py            # --version v0.11.0 --force to override
 ```
 
-Or install the KiCad plugin via **Plugin and Content Manager** → [v0.2.2 release](https://github.com/mixelpixx/Konnect/releases) → `konnect-pcm-v0.2.2-windows.zip`, then update `.cursor/mcp.json` if the binary path differs.
+Installs to `bin/konnect` (`bin/konnect.exe` on Windows), which `.cursor/mcp.json` launches through `scripts/run_konnect.py`. The launcher needs `uv` on your PATH and no Python packages, so it starts before `uv sync`.
+
+Prebuilt binaries exist for Windows x86-64, macOS (Intel and Apple Silicon), and Linux x86-64. On other targets such as Linux arm64, build from source or install the KiCad plugin via **Plugin and Content Manager** → [latest release](https://github.com/mixelpixx/Konnect/releases) → `konnect-pcm-<version>-<os>.zip`, then point `.cursor/mcp.json` at that binary.
 
 **Requirements:**
 
@@ -48,21 +66,12 @@ Use `@konnect` skill for toolset loading rules. Use `@kicad-step` for cataloged 
 
 ## 4. JLCPCB parts database (for `@component-select`)
 
-Konnect's `get_jlcpcb_part` / `search_jlcpcb_parts` tools need a local parts database. **Konnect v0.3.0+** downloads and builds this automatically:
+Konnect's `get_jlcpcb_part` / `search_jlcpcb_parts` tools need a local parts database, which Konnect downloads and builds itself (requires v0.3.0 or later — the installer ships v0.11.0):
 
-1. Use Konnect v0.3.0 or later (re-run `scripts/install_konnect.ps1` or install the latest PCM release).
-2. In chat, ask the agent to call `download_jlcpcb_database` (integration toolset).
-3. Verify with `get_jlcpcb_database_stats`.
+1. In chat, ask the agent to call `download_jlcpcb_database` (integration toolset).
+2. Verify with `get_jlcpcb_database_stats`.
 
-Default cache locations:
-
-| OS | Path |
-|----|------|
-| Windows | `%APPDATA%/konnect/jlcpcb.db` |
-| macOS | `~/Library/Application Support/konnect/jlcpcb.db` |
-| Linux | `~/.local/share/konnect/jlcpcb.db` |
-
-This is a one-time setup (re-run occasionally to refresh stock data). No scripts in this repo are required.
+The cache path per OS is in the [Platform paths](#platform-paths) table. This is a one-time setup (re-run occasionally to refresh stock data). No scripts in this repo are required.
 
 ## 5. LCSC part imports
 
@@ -80,25 +89,27 @@ Output goes to the library path in `kicad-cursor.yaml` (`symbolLibrary.path/glob
 
 ## 6. KiCad library tables
 
-Configure KiCad to find your shared library. Example for a library nicknamed `global`:
+Configure KiCad to find your shared library. Example for a library nicknamed `global`. These files live in the KiCad config directory from [Platform paths](#platform-paths).
 
-**Symbols** (`%APPDATA%/kicad/10.0/sym-lib-table`):
+**Symbols** (`sym-lib-table`):
 
 ```
-(lib (name "global") (uri "C:/path/to/global-kicad-lib/global.kicad_sym") ...)
+(lib (name "global") (uri "${GLOBAL}/global.kicad_sym") ...)
 ```
 
-**Footprints** (`%APPDATA%/kicad/10.0/fp-lib-table`):
+**Footprints** (`fp-lib-table`):
 
 ```
 (lib (name "global") (uri "${GLOBAL}/global.pretty") ...)
 ```
 
-**Environment** (`kicad_common.json`):
+**Environment** (`kicad_common.json`) — set `GLOBAL` to your library root:
 
 ```json
-"GLOBAL": "C:\\path\\to\\global-kicad-lib\\"
+"GLOBAL": "/Users/you/projects/global-kicad-lib"
 ```
+
+On Windows use forward slashes or escaped backslashes (`C:/path/to/global-kicad-lib`).
 
 ## 7. Starting a new board project
 
@@ -132,13 +143,14 @@ OK: Active PCB has N footprint(s)
 
 If you see `PCB editor not ready`, open your `.kicad_pcb` in PCB Editor (not just the project manager).
 
-Manual verification:
+Manual verification, bypassing the step runner:
 
-```powershell
-$project = (Get-Content kicad-cursor.yaml | Select-String 'projectDir:').ToString().Split(':',2)[1].Trim()
-& "C:/Program Files/KiCad/10.0/bin/kicad-cli.exe" sch erc "$project/*.kicad_sch"
-& "C:/Program Files/KiCad/10.0/bin/kicad-cli.exe" pcb drc "$project/*.kicad_pcb"
+```bash
+kicad-cli sch erc /path/to/my-board/my-board.kicad_sch
+kicad-cli pcb drc /path/to/my-board/my-board.kicad_pcb
 ```
+
+If `kicad-cli` is not on your PATH, use the full path from [Platform paths](#platform-paths).
 
 ## 9. Agent skills
 
@@ -162,8 +174,11 @@ Invoke **one** explicitly per session — see [workflow.md](workflow.md) for the
 |---------|-----|
 | No KiCad project configured | Create `kicad-cursor.yaml` from example |
 | MCP can't connect | KiCad not running or IPC disabled (PCB tools) |
-| Konnect not found | Run `scripts/install_konnect.ps1` or install PCM plugin |
+| Konnect not found | Run `python scripts/install_konnect.py` or install the PCM plugin |
+| MCP server fails to start | `uv` must be on your PATH — `.cursor/mcp.json` launches Konnect through it |
+| `kicad-cli not found` | Add KiCad to your PATH or set `kicadCli` in `kicad-cursor.yaml` |
 | Old kicad-mcp still loading | Remove disabled servers in Cursor MCP settings, reload |
 | Symbols missing after fetchPart | Run `fix-symbol-lib`, restart KiCad |
 | Footprints not found | Check fp-lib-table name is `global`, path is `global.pretty` |
 | ERC or context dump looks stale | Save the schematic in KiCad (Ctrl+S) — both read the file on disk |
+| `permission denied` on `scripts/bin/*` | `chmod +x scripts/bin/fetch-part scripts/bin/extract-datasheet` |

@@ -62,6 +62,6 @@ ERC is mandatory in a formal review. DRC is optional during the schematic phase.
 
 ## KiCad paths
 
-- KiCad 10 config: `%APPDATA%/kicad/10.0/`
-- Set `GLOBAL` env var to your shared symbol/footprint library root
-- CLI: `kicad-cli` from KiCad 10 (or set `kicadCli` in `kicad-cursor.yaml`)
+- KiCad 10 config: `%APPDATA%/kicad/10.0/` (Windows), `~/Library/Preferences/kicad/10.0/` (macOS), `~/.config/kicad/10.0/` (Linux)
+- Set the `GLOBAL` KiCad env var to your shared symbol/footprint library root
+- CLI: `kicad-cli` from KiCad 10 — found on PATH, or set `kicadCli` in `kicad-cursor.yaml`

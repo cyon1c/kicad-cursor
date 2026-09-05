@@ -2,13 +2,12 @@
   "mcpServers": {
     "konnect": {
       "type": "stdio",
-      "command": "powershell.exe",
+      "command": "uv",
       "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/run_konnect.ps1"
+        "run",
+        "--no-project",
+        "python",
+        "${workspaceFolder}/scripts/run_konnect.py"
       ]
     }
   }

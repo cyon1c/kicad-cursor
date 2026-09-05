@@ -18,8 +18,8 @@ Two modes with a **hard gate** between them. State which mode you are in before 
 
 Use the path from `kicad-cursor.yaml` (`symbolLibrary.path`):
 
-```powershell
-rg 'BQ25895|C80200' C:/path/to/global-kicad-lib/global.kicad_sym
+```bash
+rg 'BQ25895|C80200' <symbolLibrary.path>/global.kicad_sym
 ```
 
 Symbol names are usually the manufacturer MPN, not the LCSC ID.

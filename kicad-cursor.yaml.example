@@ -1,13 +1,21 @@
 # Copy to kicad-cursor.yaml and edit paths for your machine.
 # kicad-cursor.yaml is gitignored — it is local config, not part of the repo.
+#
+# Forward slashes work on all platforms, and ~ is expanded.
+#   Windows: C:/path/to/my-board
+#   macOS / Linux: ~/projects/my-board
 
 # KiCad project directory (folder containing your .kicad_pro file)
-projectDir: C:/path/to/my-board
+projectDir: ~/projects/my-board
 
 # Shared symbol/footprint library used by fetch-part and component-select
 symbolLibrary:
   nickname: global
-  path: C:/path/to/global-kicad-lib
+  path: ~/projects/global-kicad-lib
 
-# Optional: override kicad-cli location (auto-detected on Windows if omitted)
-# kicadCli: C:/Program Files/KiCad/10.0/bin/kicad-cli.exe
+# Optional: override kicad-cli. Resolution order is KICAD_CLI env var, this
+# setting, PATH, then the default install location for your OS.
+#   Windows: C:/Program Files/KiCad/10.0/bin/kicad-cli.exe
+#   macOS:   /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
+#   Linux:   /usr/bin/kicad-cli
+# kicadCli: /usr/bin/kicad-cli

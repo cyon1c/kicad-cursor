@@ -41,6 +41,10 @@ Copy the template, then fill it:
 Copy-Item -Recurse examples/kicad-project-template/research/_template <projectDir>/research/<MPN>
 ```
 
+```bash
+cp -R examples/kicad-project-template/research/_template <projectDir>/research/<MPN>
+```
+
 | File | Content |
 |------|---------|
 | `overview.md` | Chip's job in one paragraph, key specs with sources, where it sits, which app figure applies |

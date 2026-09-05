@@ -6,6 +6,10 @@ One directory per selected IC: `research/<MPN>/`. Written by `@datasheet-researc
 Copy-Item -Recurse research/_template research/BQ25619LRTWR
 ```
 
+```bash
+cp -R research/_template research/BQ25619LRTWR
+```
+
 | File | Purpose |
 |------|---------|
 | `overview.md` | What the chip does and where it sits in the system |

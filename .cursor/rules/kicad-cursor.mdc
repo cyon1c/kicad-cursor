@@ -43,11 +43,15 @@ See `docs/workflow-plan.md` for the authoritative roles, gates, and artifacts, a
 
 ## Running scripts
 
-```powershell
+Same command in PowerShell, zsh, and bash — the toolkit runs on Windows, macOS, and Linux:
+
+```bash
 uv run python scripts/run_step.py <step-id> [--project-dir <path>]
 ```
 
 Resolution order: `--project-dir` → `KICAD_PROJECT_DIR` → `projectDir` in `kicad-cursor.yaml`.
+
+Never hardcode absolute or platform-specific paths in committed files. Use `kicad-cursor.yaml`, env vars, or `pathlib` — `kicad-cli` is resolved via PATH then per-OS defaults in `scripts/kicad_cursor_config.py`.
 
 ## Symbol library
 

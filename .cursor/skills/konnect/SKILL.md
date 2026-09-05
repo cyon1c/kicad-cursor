@@ -22,8 +22,8 @@ If a task seems to need schematic edits, stop and hand the drawing back to the u
 
 ## Context economy
 
-- Baseline `tools/list` is the **starter kit** (~2K tokens): `project` + `config` toolsets + meta-tools
-- `list_toolboxes` — see all toolsets
+- Baseline `tools/list` is the **starter kit**: `project` + `config` toolsets + meta-tools
+- `list_toolboxes` — the source of truth for which toolsets this build has
 - `load_toolset(name)` before use; `unload_toolset(name)` when switching tasks
 - In the schematic phase you should normally load only `jlcpcb_parts`
 
@@ -42,7 +42,7 @@ If a task seems to need schematic edits, stop and hand the drawing back to the u
 ## JLC lookup flow
 
 1. `load_toolset("jlcpcb_parts")`
-2. One-time per machine: `download_jlcpcb_database` (Konnect v0.3.0+)
+2. One-time per machine: `download_jlcpcb_database` (needs v0.3.0+; `install_konnect.py` ships v0.11.0)
 3. `search_jlcpcb_parts` / `get_jlcpcb_part` — check stock, package, price
 4. Import the chosen part with `fetch-part`, then record it in `bom-targets.yaml`
 
@@ -51,6 +51,16 @@ Part identity and BOM rules live in `@component-select` (IC mode vs passive mode
 ## PCB tools — deferred
 
 PCB placement and routing toolsets are out of scope until the layout phase is defined (see `docs/workflow-plan.md` §7 Deferred). They require KiCad 10 running with the IPC API enabled and the PCB Editor open.
+
+## Installation
+
+`.cursor/mcp.json` launches `scripts/run_konnect.py` through `uv`, which works on Windows, macOS, and Linux. The binary lives at `bin/konnect` (`bin/konnect.exe` on Windows):
+
+```bash
+python scripts/install_konnect.py
+```
+
+If the server fails to start, check that `uv` is on PATH and the binary exists — see the troubleshooting table in `docs/setup.md`.
 
 ## Meta-tools (always available)
 

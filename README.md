@@ -20,7 +20,9 @@ Runs on Windows, macOS, and Linux.
 2. Copy `kicad-cursor.yaml.example` → `kicad-cursor.yaml` and set paths (forward slashes and `~` work everywhere):
 
    ```yaml
-   projectDir: ~/projects/my-board
+   activeProject: my-board
+   projects:
+     my-board: ~/projects/my-board
    symbolLibrary:
      nickname: global
      path: ~/projects/global-kicad-lib
@@ -82,11 +84,16 @@ uv run python scripts/run_step.py dump-design-context
 # Run ERC/DRC (only when you ask)
 uv run python scripts/run_step.py verify-all
 
-# Override project path for one command
+# Override project for one command
+uv run python scripts/run_step.py dump-design-context --project my-board
 uv run python scripts/run_step.py dump-design-context --project-dir ~/projects/my-board
+
+# List and switch named project targets
+uv run python scripts/manage_projects.py list
+uv run python scripts/manage_projects.py use my-board
 ```
 
-Project resolution order: `--project-dir` flag → `KICAD_PROJECT_DIR` env var → `projectDir` in `kicad-cursor.yaml`.
+Project resolution order: `--project-dir` → `--project` → `KICAD_PROJECT_DIR` → `KICAD_PROJECT` → `activeProject` in `kicad-cursor.yaml` → legacy `projectDir`.
 
 ## License
 

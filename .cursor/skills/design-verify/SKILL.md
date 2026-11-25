@@ -25,7 +25,7 @@ If the user asks for a *review*, use `@schematic-review` — it runs ERC as part
 
 ## Commands (via step runner)
 
-Uses `projectDir` from `kicad-cursor.yaml`:
+Uses `activeProject` from `kicad-cursor.yaml`:
 
 ```powershell
 uv run python scripts/run_step.py verify-erc

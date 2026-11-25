@@ -8,7 +8,7 @@ description: KiCad project conventions — external project config, global libra
 ## Repository model
 
 - **kicad-cursor** is a toolkit repo — it does not contain board designs.
-- Your KiCad project lives elsewhere; set `projectDir` in `kicad-cursor.yaml`.
+- Your KiCad project lives elsewhere; set named targets in `kicad-cursor.yaml` (`projects` + `activeProject`).
 - Copy `examples/kicad-project-template/` into your project folder for starter metadata.
 
 ## Configuration
@@ -17,10 +17,14 @@ Read `kicad-cursor.yaml` for:
 
 | Key | Purpose |
 |-----|---------|
-| `projectDir` | Folder with your `.kicad_pro` file |
+| `activeProject` | Name of the current board target |
+| `projects` | Map of target name → KiCad project folder path |
+| `projectDir` | Legacy single-project path (used when `projects` is unset) |
 | `symbolLibrary.path` | Shared symbol/footprint library root |
 | `symbolLibrary.nickname` | Library nickname in schematics (default: `global`) |
 | `kicadCli` | Optional override for kicad-cli path |
+
+Switch targets: `uv run python scripts/manage_projects.py use <name>`
 
 Before multi-step work, read `design.yaml`, `constraints.md`, and `bom-targets.yaml` in the **configured project directory**.
 

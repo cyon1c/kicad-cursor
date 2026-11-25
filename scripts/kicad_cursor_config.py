@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import shutil
 import sys
@@ -39,16 +40,82 @@ def kicadCliCandidates() -> tuple[Path, ...]:
     return KICAD_CLI_CANDIDATES_POSIX
 
 
-def loadConfig() -> dict:
+def configFilePath() -> Optional[Path]:
     for name in CONFIG_FILENAMES:
         path = REPO_ROOT / name
         if path.is_file():
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            return data if isinstance(data, dict) else {}
-    return {}
+            return path
+    return None
 
 
-def resolveProjectDir(cliPath: Optional[Path] = None) -> Path:
+def defaultConfigFilePath() -> Path:
+    return configFilePath() or (REPO_ROOT / CONFIG_FILENAMES[0])
+
+
+def loadConfig() -> dict:
+    path = configFilePath()
+    if path is None:
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def saveConfig(config: dict) -> Path:
+    path = defaultConfigFilePath()
+    path.write_text(yaml.safe_dump(config, sort_keys=False, default_flow_style=False), encoding="utf-8")
+    return path
+
+
+def parseProjectsMap(raw: object) -> dict[str, Path]:
+    if not isinstance(raw, dict):
+        return {}
+
+    projects: dict[str, Path] = {}
+    for name, entry in raw.items():
+        pathValue: Optional[str] = None
+        if isinstance(entry, str):
+            pathValue = entry
+        elif isinstance(entry, dict) and entry.get("path"):
+            pathValue = str(entry["path"])
+        if pathValue:
+            projects[str(name)] = Path(pathValue).expanduser()
+    return projects
+
+
+def listProjectTargets() -> dict[str, Path]:
+    return parseProjectsMap(loadConfig().get("projects"))
+
+
+def activeProjectName() -> Optional[str]:
+    active = loadConfig().get("activeProject")
+    return str(active) if active else None
+
+
+def formatProjectChoices() -> str:
+    projects = listProjectTargets()
+    if not projects:
+        return ""
+
+    active = activeProjectName()
+    lines = ["Configured project targets:"]
+    for name in sorted(projects):
+        marker = " (active)" if name == active else ""
+        lines.append(f"  {name}: {projects[name]}{marker}")
+    return "\n".join(lines)
+
+
+def resolveProjectPathFromName(name: str) -> Path:
+    projects = listProjectTargets()
+    if name not in projects:
+        choices = ", ".join(sorted(projects)) or "(none)"
+        raise ValueError(f"Unknown project target '{name}'. Configured targets: {choices}")
+    return projects[name]
+
+
+def resolveProjectDir(
+    cliPath: Optional[Path] = None,
+    projectName: Optional[str] = None,
+) -> Path:
     if cliPath is not None:
         directory = cliPath.expanduser().resolve()
         if not directory.is_dir():
@@ -62,16 +129,86 @@ def resolveProjectDir(cliPath: Optional[Path] = None) -> Path:
             raise FileNotFoundError(f"KICAD_PROJECT_DIR is not a directory: {directory}")
         return directory
 
-    configPath = loadConfig().get("projectDir")
+    if projectName:
+        directory = resolveProjectPathFromName(projectName).resolve()
+        if not directory.is_dir():
+            raise FileNotFoundError(f"Project target '{projectName}' is not a directory: {directory}")
+        return directory
+
+    envProject = os.environ.get("KICAD_PROJECT")
+    if envProject:
+        directory = resolveProjectPathFromName(envProject).resolve()
+        if not directory.is_dir():
+            raise FileNotFoundError(f"KICAD_PROJECT target '{envProject}' is not a directory: {directory}")
+        return directory
+
+    config = loadConfig()
+    active = config.get("activeProject")
+    projects = parseProjectsMap(config.get("projects"))
+    if active and active in projects:
+        directory = projects[active].resolve()
+        if not directory.is_dir():
+            raise FileNotFoundError(
+                f"activeProject '{active}' in kicad-cursor.yaml is not a directory: {directory}"
+            )
+        return directory
+
+    configPath = config.get("projectDir")
     if configPath:
         directory = Path(str(configPath)).expanduser().resolve()
         if not directory.is_dir():
             raise FileNotFoundError(f"projectDir in kicad-cursor.yaml is not a directory: {directory}")
         return directory
 
-    raise ValueError(
+    hint = formatProjectChoices()
+    message = (
         "No KiCad project configured. Copy kicad-cursor.yaml.example to kicad-cursor.yaml "
-        "and set projectDir, or pass --project-dir, or set KICAD_PROJECT_DIR."
+        "and set projects + activeProject (or legacy projectDir), or pass --project / --project-dir, "
+        "or set KICAD_PROJECT / KICAD_PROJECT_DIR."
+    )
+    if hint:
+        message = f"{message}\n{hint}"
+    raise ValueError(message)
+
+
+def setActiveProject(name: str) -> Path:
+    config = loadConfig()
+    projects = parseProjectsMap(config.get("projects"))
+    if name not in projects:
+        choices = ", ".join(sorted(projects)) or "(none)"
+        raise ValueError(f"Unknown project target '{name}'. Configured targets: {choices}")
+
+    config["activeProject"] = name
+    path = saveConfig(config)
+    return path
+
+
+def addProjectTarget(name: str, projectPath: Path) -> Path:
+    directory = projectPath.expanduser().resolve()
+    if not directory.is_dir():
+        raise FileNotFoundError(f"KiCad project directory not found: {directory}")
+
+    config = loadConfig()
+    projects = config.get("projects")
+    if not isinstance(projects, dict):
+        projects = {}
+    projects[name] = str(directory).replace("\\", "/")
+    config["projects"] = projects
+    if not config.get("activeProject"):
+        config["activeProject"] = name
+    return saveConfig(config)
+
+
+def addProjectArgs(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--project-dir",
+        type=Path,
+        help="Path to KiCad project directory (overrides named target)",
+    )
+    parser.add_argument(
+        "--project",
+        "-p",
+        help="Named project target from kicad-cursor.yaml (overrides activeProject)",
     )
 
 

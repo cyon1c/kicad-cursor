@@ -10,10 +10,10 @@ description: Execute a single cataloged KiCad operation via run_step.py. Use whe
 Never grep kipy, read API docs, or run ERC/DRC unless the step id is `verify-erc`, `verify-drc`, or `verify-all`, or the user explicitly asks to verify.
 
 ```powershell
-uv run python scripts/run_step.py <step-id> [--project-dir C:/path/to/my-board] [--lcsc-id C80200]
+uv run python scripts/run_step.py <step-id> [--project my-board] [--project-dir C:/path/to/my-board] [--lcsc-id C80200]
 ```
 
-Project path comes from `kicad-cursor.yaml` unless `--project-dir` is passed.
+Project path comes from `activeProject` in `kicad-cursor.yaml` unless `--project` or `--project-dir` is passed.
 
 List steps: `uv run python scripts/run_step.py --list`
 

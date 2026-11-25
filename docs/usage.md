@@ -19,7 +19,12 @@ cp kicad-cursor.yaml.example kicad-cursor.yaml
 Edit `kicad-cursor.yaml` — forward slashes work on every platform:
 
 ```yaml
-projectDir: ~/projects/my-board          # or C:/path/to/my-board
+activeProject: my-board
+
+projects:
+  my-board: ~/projects/my-board
+  other-board: ~/projects/other-board
+
 symbolLibrary:
   nickname: global
   path: ~/projects/global-kicad-lib
@@ -29,10 +34,24 @@ symbolLibrary:
 
 `kicad-cursor.yaml` is gitignored — each developer keeps their own paths.
 
+### Managing multiple boards
+
+List, add, and switch named targets without editing yaml by hand:
+
+```powershell
+uv run python scripts/manage_projects.py list
+uv run python scripts/manage_projects.py use other-board
+uv run python scripts/manage_projects.py add lab-board C:/path/to/lab-board
+uv run python scripts/manage_projects.py show
+```
+
+The active target is stored as `activeProject` in `kicad-cursor.yaml`. Steps and scripts use it unless you override for one command.
+
 ### Alternative: environment variables
 
 | Variable | Purpose |
 |----------|---------|
+| `KICAD_PROJECT` | Named project target from `projects` map |
 | `KICAD_PROJECT_DIR` | Path to KiCad project folder |
 | `KICAD_SYMBOL_LIBRARY` | Path to shared symbol library root |
 | `KICAD_CLI` | Path to `kicad-cli` (optional — found on PATH or in the platform default otherwise) |
@@ -41,9 +60,10 @@ Environment variables override the yaml file when set.
 
 ### One-off override
 
-Pass `--project-dir` to any step that needs a project:
+Pass `--project` or `--project-dir` to any step that needs a project:
 
 ```powershell
+uv run python scripts/run_step.py verify-erc --project other-board
 uv run python scripts/run_step.py verify-erc --project-dir C:/path/to/my-board
 ```
 
@@ -139,7 +159,7 @@ List available steps:
 uv run python scripts/run_step.py --list
 ```
 
-Run a step (uses `projectDir` from config):
+Run a step (uses `activeProject` from config):
 
 ```powershell
 uv run python scripts/run_step.py dump-design-context

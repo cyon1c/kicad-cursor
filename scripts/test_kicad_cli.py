@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from kicad_cursor_config import findProjectFiles, resolveKicadCli, resolveProjectDir
+from kicad_cursor_config import addProjectArgs, findProjectFiles, resolveKicadCli, resolveProjectDir
 
 
 def runCli(kicadCli: Path, args: list[str]) -> int:
@@ -23,17 +23,13 @@ def runCli(kicadCli: Path, args: list[str]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--project-dir",
-        type=Path,
-        help="Path to KiCad project directory (default from kicad-cursor.yaml)",
-    )
+    addProjectArgs(parser)
     parser.add_argument("--erc-only", action="store_true")
     parser.add_argument("--drc-only", action="store_true")
     args = parser.parse_args()
 
     try:
-        projectDir = resolveProjectDir(args.project_dir)
+        projectDir = resolveProjectDir(args.project_dir, args.project)
         kicadCli = resolveKicadCli()
         sch, pcb, _ = findProjectFiles(projectDir)
     except (FileNotFoundError, ValueError) as error:

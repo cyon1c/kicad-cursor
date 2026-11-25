@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from kicad_cursor_config import resolveProjectDir
+from kicad_cursor_config import addProjectArgs, resolveProjectDir
 from kipy import KiCad
 from kipy.board_types import BoardSegment
 from kipy.geometry import Vector2
@@ -44,17 +44,13 @@ def rectangleOutline(widthMm: float, heightMm: float, lineWidthMm: float = 0.1) 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--project-dir",
-        type=Path,
-        help="KiCad project directory containing design.yaml",
-    )
+    addProjectArgs(parser)
     parser.add_argument("--width-mm", type=float, help="Override board width")
     parser.add_argument("--height-mm", type=float, help="Override board height")
     args = parser.parse_args()
 
     try:
-        projectDir = resolveProjectDir(args.project_dir)
+        projectDir = resolveProjectDir(args.project_dir, args.project)
     except (FileNotFoundError, ValueError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 2

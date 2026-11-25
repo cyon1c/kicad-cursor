@@ -9,7 +9,7 @@ This repository is a **toolkit**, not a board workspace.
 
 ## Project paths
 
-- Read `kicad-cursor.yaml` (or `KICAD_PROJECT_DIR`) for the active KiCad project directory.
+- Read `kicad-cursor.yaml` (`activeProject` + `projects`, or legacy `projectDir`) or `KICAD_PROJECT` / `KICAD_PROJECT_DIR` for the active KiCad project directory.
 - Never create or edit `.kicad_pro`, `.kicad_sch`, or `.kicad_pcb` files inside this repo.
 - Board metadata (`design.yaml`, `constraints.md`, `bom-targets.yaml`, `datasheets/`, `research/`, `design-log/`) lives in the **user's project directory**, not here.
 - Datasheet PDFs go in `<projectDir>/datasheets/`. Extracted output goes in `<projectDir>/datasheets/extracted/<pdf-stem>/` (never in this repo).
@@ -46,10 +46,10 @@ See `docs/workflow-plan.md` for the authoritative roles, gates, and artifacts, a
 Same command in PowerShell, zsh, and bash — the toolkit runs on Windows, macOS, and Linux:
 
 ```bash
-uv run python scripts/run_step.py <step-id> [--project-dir <path>]
+uv run python scripts/run_step.py <step-id> [--project <name>] [--project-dir <path>]
 ```
 
-Resolution order: `--project-dir` → `KICAD_PROJECT_DIR` → `projectDir` in `kicad-cursor.yaml`.
+Resolution order: `--project-dir` → `--project` → `KICAD_PROJECT_DIR` → `KICAD_PROJECT` → `activeProject` in `kicad-cursor.yaml` → legacy `projectDir`.
 
 Never hardcode absolute or platform-specific paths in committed files. Use `kicad-cursor.yaml`, env vars, or `pathlib` — `kicad-cli` is resolved via PATH then per-OS defaults in `scripts/kicad_cursor_config.py`.
 

@@ -7,6 +7,7 @@ Works on Windows, macOS, and Linux. Where commands differ, both forms are shown 
 | | Windows | macOS | Linux |
 |---|---------|-------|-------|
 | KiCad config | `%APPDATA%/kicad/10.0/` | `~/Library/Preferences/kicad/10.0/` | `~/.config/kicad/10.0/` |
+| User project templates | `%USERPROFILE%/Documents/KiCad/10.0/template/` | `~/Documents/KiCad/10.0/template/` | `~/Documents/kicad/10.0/template/` |
 | `kicad-cli` | `C:/Program Files/KiCad/10.0/bin/kicad-cli.exe` | `/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli` | `/usr/bin/kicad-cli` |
 | JLC parts DB | `%APPDATA%/konnect/jlcpcb.db` | `~/Library/Application Support/konnect/jlcpcb.db` | `~/.local/share/konnect/jlcpcb.db` |
 
@@ -34,7 +35,7 @@ Copy-Item kicad-cursor.yaml.example kicad-cursor.yaml
 cp kicad-cursor.yaml.example kicad-cursor.yaml
 ```
 
-Set `projectDir` to your KiCad project folder and `symbolLibrary.path` to your shared library. See [usage.md](usage.md).
+Set `activeProject` and `projects` in `kicad-cursor.yaml`, plus `symbolLibrary.path` for your shared library. See [usage.md](usage.md).
 
 ## 3. MCP server (Konnect)
 
@@ -113,10 +114,14 @@ On Windows use forward slashes or escaped backslashes (`C:/path/to/global-kicad-
 
 ## 7. Starting a new board project
 
+**Option A — KiCad user template (repeat use):** register `examples/kicad-project-template/` as a user template via `KICAD_USER_TEMPLATE_DIR`, add a blank KiCad project in that folder, then use **File → New Project → User Templates**. Full steps: [examples/kicad-project-template/README.md](../examples/kicad-project-template/README.md#option-a--kicad-user-template-recommended-for-repeat-use).
+
+**Option B — Manual copy:**
+
 1. Create a folder for your board (outside this repo).
-2. Copy metadata from `examples/kicad-project-template/`.
+2. Copy metadata from `examples/kicad-project-template/` (skip `meta/`).
 3. Create the KiCad project in that folder (`File → New Project`).
-4. Set `projectDir` in `kicad-cursor.yaml` to that folder.
+4. Add the folder as a project target: `uv run python scripts/manage_projects.py add my-board C:/path/to/folder` (or set `projects` in `kicad-cursor.yaml`).
 
 ## 8. Python environment and tests
 

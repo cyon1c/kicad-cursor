@@ -25,7 +25,7 @@ import pymupdf
 import pymupdf4llm
 import yaml
 
-from kicad_cursor_config import projectDatasheetsDir, resolveProjectDir
+from kicad_cursor_config import addProjectArgs, projectDatasheetsDir, resolveProjectDir
 
 # Adobe Symbol / SymbolMT PUA codepoints seen in ST datasheets.
 SYMBOL_FONT_MAP = {
@@ -512,11 +512,7 @@ def outputDirFor(pdfPath: Path, projectDir: Path | None) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--project-dir",
-        type=Path,
-        help="Path to KiCad project directory (default from kicad-cursor.yaml)",
-    )
+    addProjectArgs(parser)
     parser.add_argument("--pdf", help="Path to PDF (relative to project or absolute)")
     parser.add_argument("--all", action="store_true", help="Extract every PDF in project datasheets/")
     parser.add_argument("--dpi", type=int, default=200, help="Image render DPI")
@@ -525,14 +521,14 @@ def main() -> int:
 
     try:
         if args.all:
-            projectDir = resolveProjectDir(args.project_dir)
+            projectDir = resolveProjectDir(args.project_dir, args.project)
             dsDir = projectDatasheetsDir(projectDir)
             targets = sorted(p for p in dsDir.glob("*.pdf") if p.is_file())
         else:
             if not args.pdf:
                 raise ValueError("Provide --pdf or use --all")
             if args.project_dir:
-                projectDir = resolveProjectDir(args.project_dir)
+                projectDir = resolveProjectDir(args.project_dir, args.project)
             else:
                 try:
                     projectDir = resolveProjectDir()

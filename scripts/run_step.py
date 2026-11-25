@@ -9,7 +9,7 @@ from pathlib import Path
 
 import yaml
 
-from kicad_cursor_config import REPO_ROOT, resolveProjectDir
+from kicad_cursor_config import REPO_ROOT, addProjectArgs, resolveProjectDir
 
 STEPS_FILE = REPO_ROOT / "steps.yaml"
 
@@ -42,11 +42,7 @@ def listSteps(data: dict) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stepId", nargs="?", help="Step id from steps.yaml")
-    parser.add_argument(
-        "--project-dir",
-        type=Path,
-        help="Path to KiCad project directory (overrides kicad-cursor.yaml)",
-    )
+    addProjectArgs(parser)
     parser.add_argument("--lcsc-id", help="LCSC id for fetch-part step")
     parser.add_argument("--pdf", help="PDF path for extract-datasheet step")
     parser.add_argument("--list", action="store_true", help="List available steps")
@@ -82,7 +78,7 @@ def main() -> int:
     projectDir: Path | None = None
     if "{project_dir}" in step["command"]:
         try:
-            projectDir = resolveProjectDir(args.project_dir)
+            projectDir = resolveProjectDir(args.project_dir, args.project)
         except (FileNotFoundError, ValueError) as error:
             print(f"ERROR: {error}", file=sys.stderr)
             return 2

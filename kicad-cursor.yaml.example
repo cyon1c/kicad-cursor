@@ -5,8 +5,16 @@
 #   Windows: C:/path/to/my-board
 #   macOS / Linux: ~/projects/my-board
 
-# KiCad project directory (folder containing your .kicad_pro file)
-projectDir: ~/projects/my-board
+# Named KiCad project targets (folder containing your .kicad_pro file).
+# Use `uv run python scripts/manage_projects.py` to list, add, and switch.
+activeProject: my-board
+
+projects:
+  my-board: ~/projects/my-board
+  # other-board: ~/projects/other-board
+
+# Legacy single-project key still works when projects/activeProject are unset:
+# projectDir: ~/projects/my-board
 
 # Shared symbol/footprint library used by fetch-part and component-select
 symbolLibrary:

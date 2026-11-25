@@ -20,7 +20,7 @@ from typing import Any, Optional
 
 import yaml
 
-from kicad_cursor_config import findProjectFiles, resolveKicadCli, resolveProjectDir
+from kicad_cursor_config import addProjectArgs, findProjectFiles, resolveKicadCli, resolveProjectDir
 
 GENERIC_LIB_PATTERNS = (
     re.compile(r"^Connector", re.I),
@@ -41,21 +41,18 @@ def findKicadCli() -> Path:
     return resolveKicadCli()
 
 
-def resolveRootSchematic(projectDir: Optional[Path], schematicPath: Optional[Path]) -> Path:
+def resolveRootSchematic(
+    cliProjectDir: Optional[Path],
+    projectName: Optional[str],
+    schematicPath: Optional[Path],
+) -> Path:
     if schematicPath:
         path = schematicPath.resolve()
         if not path.is_file():
             raise FileNotFoundError(f"Schematic not found: {path}")
         return path
 
-    if projectDir:
-        directory = projectDir.resolve()
-        if not directory.is_dir():
-            raise FileNotFoundError(f"Project directory not found: {directory}")
-        schematic, _, _ = findProjectFiles(directory)
-        return schematic
-
-    directory = resolveProjectDir()
+    directory = resolveProjectDir(cliProjectDir, projectName)
     schematic, _, _ = findProjectFiles(directory)
     return schematic
 
@@ -643,7 +640,7 @@ def writeOutputs(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--project-dir", type=Path, help="Path to KiCad project directory")
+    addProjectArgs(parser)
     parser.add_argument("--schematic", type=Path, help="Path to root .kicad_sch file")
     parser.add_argument(
         "--output-dir",
@@ -653,7 +650,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        rootSchematic = resolveRootSchematic(args.project_dir, args.schematic)
+        rootSchematic = resolveRootSchematic(args.project_dir, args.project, args.schematic)
         outputDir = args.output_dir or (rootSchematic.parent / "design-context")
         kicadCli = findKicadCli()
         hierarchy = parseHierarchy(rootSchematic)

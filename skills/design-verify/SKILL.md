@@ -7,30 +7,30 @@ description: Ad-hoc KiCad ERC and DRC runs when the user explicitly asks to veri
 
 ## Critical rule
 
-**Do not run ERC or DRC after edits or any other step unless the user explicitly requests verification** (or invokes `@design-verify`).
+**Do not run ERC or DRC after edits or any other step unless the user explicitly requests verification** (or invokes `/kicad:design-verify`).
 
 Wrong: draw outline → run DRC automatically.
 Right: draw outline → remind user to Ctrl+S → stop.
 
-## This skill vs `@schematic-review`
+## This skill vs `/kicad:schematic-review`
 
-| | `@design-verify` | `@schematic-review` |
+| | `/kicad:design-verify` | `/kicad:schematic-review` |
 |---|---|---|
 | Trigger | User says "run ERC/DRC" | User wants a design review |
 | Scope | Raw check output only | Fresh context dump + **ERC** + value audit + intent diff |
 | ERC | Only if asked | **Always required** |
 | Output | Pass/fail + violations | Review report, `design-log/reviews/<date>.md` |
 
-If the user asks for a *review*, use `@schematic-review` — it runs ERC as part of its checklist. Use this skill only for a quick standalone check.
+If the user asks for a *review*, use `/kicad:schematic-review` — it runs ERC as part of its checklist. Use this skill only for a quick standalone check.
 
 ## Commands (via step runner)
 
 Uses `activeProject` from `kicad-cursor.yaml`:
 
-```powershell
-uv run python scripts/run_step.py verify-erc
-uv run python scripts/run_step.py verify-drc
-uv run python scripts/run_step.py verify-all
+```bash
+kicad-step verify-erc
+kicad-step verify-drc
+kicad-step verify-all
 ```
 
 Both checks read the **saved** files on disk. Remind the user to save in KiCad first.
@@ -39,8 +39,8 @@ DRC is optional in the schematic phase — the board is expected to be incomplet
 
 ## Symbol library (only after fetch-part)
 
-```powershell
-uv run python scripts/run_step.py fix-symbol-lib
+```bash
+kicad-step fix-symbol-lib
 ```
 
 ## Report format

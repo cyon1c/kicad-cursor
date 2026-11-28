@@ -31,10 +31,10 @@ If a task seems to need schematic edits, stop and hand the drawing back to the u
 
 | Task | Use |
 |------|-----|
-| Schematic connectivity / as-built context | `@kicad-step` → `dump-design-context` (kicad-cli netlist — reliable, no image processing) |
-| ERC / DRC | `@kicad-step` → `verify-erc` / `verify-drc` |
-| Import LCSC part into the library | `@kicad-step` → `fetch-part` |
-| Datasheet extraction | `@kicad-step` → `extract-datasheet` |
+| Schematic connectivity / as-built context | `/kicad:kicad-step` → `dump-design-context` (kicad-cli netlist — reliable, no image processing) |
+| ERC / DRC | `/kicad:kicad-step` → `verify-erc` / `verify-drc` |
+| Import LCSC part into the library | `/kicad:kicad-step` → `fetch-part` |
+| Datasheet extraction | `/kicad:kicad-step` → `extract-datasheet` |
 | JLC search, stock, price | Konnect `jlcpcb_parts` toolset |
 
 `dump-design-context` — not Konnect — is the primary schematic context path.
@@ -46,7 +46,7 @@ If a task seems to need schematic edits, stop and hand the drawing back to the u
 3. `search_jlcpcb_parts` / `get_jlcpcb_part` — check stock, package, price
 4. Import the chosen part with `fetch-part`, then record it in `bom-targets.yaml`
 
-Part identity and BOM rules live in `@component-select` (IC mode vs passive mode).
+Part identity and BOM rules live in `/kicad:component-select` (IC mode vs passive mode).
 
 ## PCB tools — deferred
 
@@ -54,10 +54,10 @@ PCB placement and routing toolsets are out of scope until the layout phase is de
 
 ## Installation
 
-`.cursor/mcp.json` launches `scripts/run_konnect.py` through `uv`, which works on Windows, macOS, and Linux. The binary lives at `bin/konnect` (`bin/konnect.exe` on Windows):
+The plugin's `.mcp.json` launches `scripts/run_konnect.py` through `uv`, which works on Windows, macOS, and Linux. The binary lives at `bin/konnect` (`bin/konnect.exe` on Windows):
 
 ```bash
-python scripts/install_konnect.py
+uv run --project <repo> python <repo>/scripts/install_konnect.py
 ```
 
 If the server fails to start, check that `uv` is on PATH and the binary exists — see the troubleshooting table in `docs/setup.md`.

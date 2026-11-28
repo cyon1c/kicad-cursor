@@ -5,14 +5,14 @@ description: Deep per-IC research from extracted datasheets — features, pin-by
 
 # Schematic Research Assistant
 
-One selected IC at a time. Produce `research/<MPN>/` that the user draws from and `@schematic-review` diffs against.
+One selected IC at a time. Produce `research/<MPN>/` that the user draws from and `/kicad:schematic-review` diffs against.
 
 ## Prerequisite: extract the PDF
 
 The user drops the PDF in `<projectDir>/datasheets/`. Then:
 
-```powershell
-uv run python scripts/run_step.py extract-datasheet --pdf datasheets/<file>.pdf
+```bash
+kicad-step extract-datasheet --pdf datasheets/<file>.pdf
 ```
 
 Output lands in `<projectDir>/datasheets/extracted/<pdf-stem>/`:
@@ -37,7 +37,7 @@ images/       # pinout and application circuit figures
 
 Copy the template, then fill it:
 
-```powershell
+```bash
 Copy-Item -Recurse examples/kicad-project-template/research/_template <projectDir>/research/<MPN>
 ```
 
@@ -73,10 +73,10 @@ A 36-channel driver gets groups, not 36 narratives. Deep dives on request.
 
 ## Will not
 
-- Assign LCSC or run `fetch-part` → `@component-select`
-- Lock passive BOM entries → `@component-select` passive mode, after review
-- Edit schematics or advise placement coordinates → `@schematic-draw` writes the drawing brief
-- Run ERC → `@schematic-review`
+- Assign LCSC or run `fetch-part` → `/kicad:component-select`
+- Lock passive BOM entries → `/kicad:component-select` passive mode, after review
+- Edit schematics or advise placement coordinates → `/kicad:schematic-draw` writes the drawing brief
+- Run ERC → `/kicad:schematic-review`
 
 ## Session summary format
 
@@ -94,5 +94,5 @@ A 36-channel driver gets groups, not 36 narratives. Deep dives on request.
 **Open questions raised**
 - <question> → design-log/open-questions.md
 
-**Next:** `@schematic-draw` for block <id>
+**Next:** `/kicad:schematic-draw` for block <id>
 ```

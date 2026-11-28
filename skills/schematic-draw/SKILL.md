@@ -5,7 +5,7 @@ description: Guidance and checklists for the human drawing a KiCad schematic blo
 
 # Schematic drawing guidance (human draws)
 
-The agent's job here is to **tell the user what to draw**, then get out of the way. No `.kicad_sch` edits, no Konnect placement tools, no ERC (that belongs to `@schematic-review`).
+The agent's job here is to **tell the user what to draw**, then get out of the way. No `.kicad_sch` edits, no Konnect placement tools, no ERC (that belongs to `/kicad:schematic-review`).
 
 ## Inputs before advising
 
@@ -14,7 +14,7 @@ The agent's job here is to **tell the user what to draw**, then get out of the w
 3. `<projectDir>/research/<mpn>/pins.md` + `passives-required.md` — per-IC truth
 4. `<projectDir>/bom-targets.yaml` — which symbols are already in the library
 
-If `research/<mpn>/` is missing for the block's IC, run `@datasheet-research` first — do not improvise pin advice.
+If `research/<mpn>/` is missing for the block's IC, run `/kicad:datasheet-research` first — do not improvise pin advice.
 
 ## Per-block drawing brief
 
@@ -46,7 +46,7 @@ Give the user one block at a time, in this shape:
 ## Drawing rules the user should follow
 
 - **Every passive gets a value field** (`100nF`, `10k`, `0.01Ω`). `TBD` is only acceptable on non-critical nets and will be flagged at review.
-- Passive **LCSC numbers are not needed yet** — they are assigned after review by `@component-select` passive mode.
+- Passive **LCSC numbers are not needed yet** — they are assigned after review by `/kicad:component-select` passive mode.
 - ICs use `global:<MPN>` symbols already imported into the library.
 - Net names: uppercase with underscores (`V3V3`, `I2C_SDA`, `ESP32_EN`); match rail names in `design.yaml`.
 - Power symbols per rail; one GND style per sheet; `PWR_FLAG` on every source net.
@@ -66,7 +66,7 @@ Give the user one block at a time, in this shape:
 
 Datasheet-specific values always beat this table.
 
-## Hand-off checklist (before `@schematic-review`)
+## Hand-off checklist (before `/kicad:schematic-review`)
 
 - [ ] All symbols for the block placed, refs annotated (no `?`)
 - [ ] Every passive has a value field
@@ -75,11 +75,11 @@ Datasheet-specific values always beat this table.
 - [ ] Strapping / config pins set per `research/<mpn>/pins.md`
 - [ ] **Saved in KiCad (Ctrl+S)** — review reads the file on disk
 
-Then hand off: `@schematic-review`.
+Then hand off: `/kicad:schematic-review`.
 
 ## Will not
 
 - Place, wire, or annotate anything in `.kicad_sch`
-- Run ERC (`@schematic-review` or `@design-verify`)
-- Pick passive LCSC numbers (`@component-select` passive mode)
-- Re-architect the block (`@design-consultant`)
+- Run ERC (`/kicad:schematic-review` or `/kicad:design-verify`)
+- Pick passive LCSC numbers (`/kicad:component-select` passive mode)
+- Re-architect the block (`/kicad:design-consultant`)

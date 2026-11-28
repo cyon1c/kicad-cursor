@@ -41,7 +41,7 @@ Before (high token):
 After (low token):
 
 ```powershell
-uv run python scripts/run_step.py draw-board-outline
+kicad-step draw-board-outline
 ```
 
 (Project path comes from `kicad-cursor.yaml`.)
@@ -50,12 +50,12 @@ uv run python scripts/run_step.py draw-board-outline
 
 1. Implement `scripts/my_action.py`
 2. Add entry to `steps.yaml`
-3. Optionally extend `@kicad-step` table — no API exploration in skills
+3. Optionally extend `/kicad:kicad-step` table — no API exploration in skills
 
 ## Verification is separate
 
 | Step | When |
 |------|------|
 | `draw-board-outline` | User wants outline |
-| `verify-drc` | User says "run DRC" / `@design-verify` |
+| `verify-drc` | User says "run DRC" / `/kicad:design-verify` |
 | `verify-all` | User says "verify the design" |

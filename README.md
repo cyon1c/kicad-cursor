@@ -1,6 +1,6 @@
 # kicad-cursor
 
-Chat-driven KiCad design utilities for Cursor agents. This repo provides MCP integration, agent skills, and scripts that operate on **your existing KiCad project** — it does not contain board designs.
+Chat-driven KiCad design utilities, packaged as a Claude Code plugin (`kicad`). This repo provides MCP integration, agent skills, and scripts that operate on **your existing KiCad project** — it does not contain board designs.
 
 **You draw the schematic.** The agents handle requirements, power architecture, part sourcing, datasheet research, and review with ERC — they never edit your `.kicad_sch`. See [docs/workflow.md](docs/workflow.md).
 
@@ -11,12 +11,12 @@ Runs on Windows, macOS, and Linux.
 - KiCad 10 with IPC API enabled (`Preferences → Plugins → Enable IPC API Server`)
 - Python 3.11+ with [uv](https://github.com/astral-sh/uv)
 - [Konnect](https://github.com/mixelpixx/Konnect) MCP server (see [docs/setup.md](docs/setup.md))
-- Cursor with MCP support
+- [Claude Code](https://claude.com/claude-code)
 - A KiCad project on disk (`.kicad_pro` + schematic/PCB files)
 
 ## Quick start
 
-1. Clone this repo and open it in Cursor.
+1. Clone this repo.
 2. Copy `kicad-cursor.yaml.example` → `kicad-cursor.yaml` and set paths (forward slashes and `~` work everywhere):
 
    ```yaml
@@ -29,21 +29,29 @@ Runs on Windows, macOS, and Linux.
    ```
 
 3. Install dependencies: `uv sync`
-4. Install Konnect: `python scripts/install_konnect.py`
-5. Enable the `konnect` MCP server from `.cursor/mcp.json`.
+4. Install Konnect: `uv run python scripts/install_konnect.py`
+5. Load the plugin: symlink the repo into Claude Code's skills folder, which loads it live as `kicad@skills-dir`
+   (edits apply next session), and put the step commands on your PATH:
+
+   ```bash
+   ln -s "$PWD" ~/.claude/skills/kicad
+   ln -s "$PWD/scripts/bin/kicad-step" "$PWD/scripts/bin/kicad-projects" ~/.local/bin/
+   ```
+
+   For a one-off session instead: `claude --plugin-dir .`. The plugin's `.mcp.json` starts Konnect.
 6. Copy `examples/kicad-project-template/*` into your project folder and open the project in KiCad.
-7. Start a session: `@design-consultant`.
+7. Start a session: `/kicad:design-consultant`.
 
 ## Workflow at a glance
 
 | # | Phase | Skill |
 |---|-------|-------|
-| 1 | Requirements, power tree, blocks, IC intent | `@design-consultant` |
-| 2 | IC intake — LCSC + `fetch-part` | `@component-select` (IC mode) |
-| 3 | Per-IC pins and required passives | `@datasheet-research` |
-| 4 | **You draw the schematic in KiCad** | `@schematic-draw` (briefs only) |
-| 5 | Review — context dump + ERC + value audit | `@schematic-review` |
-| 6 | Passive LCSC finalize | `@component-select` (passive mode) |
+| 1 | Requirements, power tree, blocks, IC intent | `/kicad:design-consultant` |
+| 2 | IC intake — LCSC + `fetch-part` | `/kicad:component-select` (IC mode) |
+| 3 | Per-IC pins and required passives | `/kicad:datasheet-research` |
+| 4 | **You draw the schematic in KiCad** | `/kicad:schematic-draw` (briefs only) |
+| 5 | Review — context dump + ERC + value audit | `/kicad:schematic-review` |
+| 6 | Passive LCSC finalize | `/kicad:component-select` (passive mode) |
 
 ICs get part numbers up front; passives carry only a value until review passes. PCB layout is a deferred phase.
 
@@ -53,10 +61,10 @@ See [docs/workflow.md](docs/workflow.md) for the guide, [docs/workflow-plan.md](
 
 ```
 kicad-cursor/
-  .cursor/
-    mcp.json              # Konnect MCP server config
-    rules/                # Agent rules (external project model)
-    skills/               # Agent skills for design workflows
+  .claude-plugin/plugin.json  # Claude Code plugin manifest (name: kicad)
+  .mcp.json             # Konnect MCP server config
+  hooks/                # Guardrail: blocks agent edits to .kicad_sch/.kicad_pcb/.kicad_pro
+  skills/               # Agent skills for design workflows
   docs/
     setup.md              # KiCad, Konnect, library setup
     usage.md              # Pointing tools at your project
@@ -76,21 +84,21 @@ Identical in PowerShell, zsh, and bash:
 
 ```bash
 # Import an LCSC part into your symbol library
-uv run python scripts/run_step.py fetch-part --lcsc-id C80200
+kicad-step fetch-part --lcsc-id C80200
 
 # Export schematic context for agent review
-uv run python scripts/run_step.py dump-design-context
+kicad-step dump-design-context
 
 # Run ERC/DRC (only when you ask)
-uv run python scripts/run_step.py verify-all
+kicad-step verify-all
 
 # Override project for one command
-uv run python scripts/run_step.py dump-design-context --project my-board
-uv run python scripts/run_step.py dump-design-context --project-dir ~/projects/my-board
+kicad-step dump-design-context --project my-board
+kicad-step dump-design-context --project-dir ~/projects/my-board
 
 # List and switch named project targets
-uv run python scripts/manage_projects.py list
-uv run python scripts/manage_projects.py use my-board
+kicad-projects list
+kicad-projects use my-board
 ```
 
 Project resolution order: `--project-dir` → `--project` → `KICAD_PROJECT_DIR` → `KICAD_PROJECT` → `activeProject` in `kicad-cursor.yaml` → legacy `projectDir`.

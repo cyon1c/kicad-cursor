@@ -1,4 +1,4 @@
-# KiCad + Cursor setup
+# KiCad + Claude Code setup
 
 Works on Windows, macOS, and Linux. Where commands differ, both forms are shown — PowerShell first, then macOS/Linux shell.
 
@@ -39,7 +39,7 @@ Set `activeProject` and `projects` in `kicad-cursor.yaml`, plus `symbolLibrary.p
 
 ## 3. MCP server (Konnect)
 
-This repo ships `.cursor/mcp.json` with one server:
+The plugin ships `.mcp.json` with one server:
 
 | Server | Purpose |
 |--------|---------|
@@ -48,12 +48,12 @@ This repo ships `.cursor/mcp.json` with one server:
 **Install Konnect binary** (once) — picks the right release asset for your OS and CPU:
 
 ```bash
-python scripts/install_konnect.py            # --version v0.11.0 --force to override
+uv run python scripts/install_konnect.py     # --version v0.11.0 --force to override
 ```
 
-Installs to `bin/konnect` (`bin/konnect.exe` on Windows), which `.cursor/mcp.json` launches through `scripts/run_konnect.py`. The launcher needs `uv` on your PATH and no Python packages, so it starts before `uv sync`.
+Installs to `bin/konnect` (`bin/konnect.exe` on Windows), which the plugin's `.mcp.json` launches through `scripts/run_konnect.py`. The launcher needs `uv` on your PATH and no Python packages, so it starts before `uv sync`.
 
-Prebuilt binaries exist for Windows x86-64, macOS (Intel and Apple Silicon), and Linux x86-64. On other targets such as Linux arm64, build from source or install the KiCad plugin via **Plugin and Content Manager** → [latest release](https://github.com/mixelpixx/Konnect/releases) → `konnect-pcm-<version>-<os>.zip`, then point `.cursor/mcp.json` at that binary.
+Prebuilt binaries exist for Windows x86-64, macOS (Intel and Apple Silicon), and Linux x86-64. On other targets such as Linux arm64, build from source or install the KiCad plugin via **Plugin and Content Manager** → [latest release](https://github.com/mixelpixx/Konnect/releases) → `konnect-pcm-<version>-<os>.zip`, then point `.mcp.json` at that binary.
 
 **Requirements:**
 
@@ -61,11 +61,11 @@ Prebuilt binaries exist for Windows x86-64, macOS (Intel and Apple Silicon), and
 - PCB Editor open with target board for live PCB edits
 - Schematic tools work on `.kicad_sch` files without KiCad open
 
-**Cursor:** disable old `kicad-pcb` / `kicad-schematic` servers if still cached, then reload MCP. Only `konnect` should be enabled.
+Check with `/mcp` in Claude Code: only `konnect` (from the `kicad` plugin) should be listed for KiCad.
 
-Use `@konnect` skill for toolset loading rules. Use `@kicad-step` for cataloged low-token steps (outline, fetch-part, verify).
+Use `/kicad:konnect` skill for toolset loading rules. Use `/kicad:kicad-step` for cataloged low-token steps (outline, fetch-part, verify).
 
-## 4. JLCPCB parts database (for `@component-select`)
+## 4. JLCPCB parts database (for `/kicad:component-select`)
 
 Konnect's `get_jlcpcb_part` / `search_jlcpcb_parts` tools need a local parts database, which Konnect downloads and builds itself (requires v0.3.0 or later — the installer ships v0.11.0):
 
@@ -79,7 +79,7 @@ The cache path per OS is in the [Platform paths](#platform-paths) table. This is
 Parts are imported via `easyeda2kicad` in the repo venv:
 
 ```powershell
-uv run python scripts/run_step.py fetch-part --lcsc-id C80200
+kicad-step fetch-part --lcsc-id C80200
 uv run python scripts/fetch_part.py C80200 --symbol    # symbol only
 uv run python scripts/fetch_part.py C80200 --footprint # footprint only
 ```
@@ -121,7 +121,7 @@ On Windows use forward slashes or escaped backslashes (`C:/path/to/global-kicad-
 1. Create a folder for your board (outside this repo).
 2. Copy metadata from `examples/kicad-project-template/` (skip `meta/`).
 3. Create the KiCad project in that folder (`File → New Project`).
-4. Add the folder as a project target: `uv run python scripts/manage_projects.py add my-board C:/path/to/folder` (or set `projects` in `kicad-cursor.yaml`).
+4. Add the folder as a project target: `kicad-projects add my-board C:/path/to/folder` (or set `projects` in `kicad-cursor.yaml`).
 
 ## 8. Python environment and tests
 
@@ -161,17 +161,17 @@ If `kicad-cli` is not on your PATH, use the full path from [Platform paths](#pla
 
 Invoke **one** explicitly per session — see [workflow.md](workflow.md) for the phase order:
 
-- `@design-consultant` — requirements, power tree, blocks, IC intent
-- `@component-select` — LCSC and library: IC mode, then passive mode after review
-- `@datasheet-research` — per-IC pins, strapping, required passives
-- `@schematic-draw` — drawing briefs for you (agents never edit `.kicad_sch`)
-- `@schematic-review` — context dump + ERC + value audit + intent diff
-- `@design-log` — decisions, open questions, session catch-up
-- `@kicad-project` — config, libraries, project layout
-- `@kicad-step` — run one cataloged script
-- `@konnect` — JLC lookup and read-only context via MCP
-- `@design-verify` — ad-hoc ERC/DRC (opt-in only)
-- `@pcb-layout` — deferred until the layout phase is defined
+- `/kicad:design-consultant` — requirements, power tree, blocks, IC intent
+- `/kicad:component-select` — LCSC and library: IC mode, then passive mode after review
+- `/kicad:datasheet-research` — per-IC pins, strapping, required passives
+- `/kicad:schematic-draw` — drawing briefs for you (agents never edit `.kicad_sch`)
+- `/kicad:schematic-review` — context dump + ERC + value audit + intent diff
+- `/kicad:design-log` — decisions, open questions, session catch-up
+- `/kicad:kicad-project` — config, libraries, project layout
+- `/kicad:kicad-step` — run one cataloged script
+- `/kicad:konnect` — JLC lookup and read-only context via MCP
+- `/kicad:design-verify` — ad-hoc ERC/DRC (opt-in only)
+- `/kicad:pcb-layout` — deferred until the layout phase is defined
 
 ## Troubleshooting
 
@@ -179,10 +179,10 @@ Invoke **one** explicitly per session — see [workflow.md](workflow.md) for the
 |---------|-----|
 | No KiCad project configured | Create `kicad-cursor.yaml` from example |
 | MCP can't connect | KiCad not running or IPC disabled (PCB tools) |
-| Konnect not found | Run `python scripts/install_konnect.py` or install the PCM plugin |
-| MCP server fails to start | `uv` must be on your PATH — `.cursor/mcp.json` launches Konnect through it |
+| Konnect not found | Run `uv run python scripts/install_konnect.py` or install the PCM plugin |
+| MCP server fails to start | `uv` must be on your PATH — the plugin's `.mcp.json` launches Konnect through it |
 | `kicad-cli not found` | Add KiCad to your PATH or set `kicadCli` in `kicad-cursor.yaml` |
-| Old kicad-mcp still loading | Remove disabled servers in Cursor MCP settings, reload |
+| Old kicad-mcp still loading | `claude mcp list`, then `claude mcp remove <name>` for anything but `konnect` |
 | Symbols missing after fetchPart | Run `fix-symbol-lib`, restart KiCad |
 | Footprints not found | Check fp-lib-table name is `global`, path is `global.pretty` |
 | ERC or context dump looks stale | Save the schematic in KiCad (Ctrl+S) — both read the file on disk |

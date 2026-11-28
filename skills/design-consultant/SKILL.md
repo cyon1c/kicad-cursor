@@ -51,14 +51,14 @@ Ask the user rather than assuming, whenever the assumption would change an IC ch
 - `design-log/open-questions.md` — the queue
 - Optional `blocks/<id>.yaml` — per-block intent
 
-Hand off to `@component-select` (IC mode) with the locked IC list.
+Hand off to `/kicad:component-select` (IC mode) with the locked IC list.
 
 ## Will not
 
-- Assign LCSC numbers or run `fetch-part` → `@component-select`
-- Run pin-by-pin datasheet walkthroughs → `@datasheet-research`
-- Select passive part numbers → `@component-select` passive mode
-- Edit schematics or run ERC → the user draws; `@schematic-review` checks
+- Assign LCSC numbers or run `fetch-part` → `/kicad:component-select`
+- Run pin-by-pin datasheet walkthroughs → `/kicad:datasheet-research`
+- Select passive part numbers → `/kicad:component-select` passive mode
+- Edit schematics or run ERC → the user draws; `/kicad:schematic-review` checks
 
 ## Session summary format
 
@@ -76,5 +76,5 @@ Hand off to `@component-select` (IC mode) with the locked IC list.
 - design.yaml (rails, blocks), design-log/architecture.md, decisions.md
 
 **Next**
-- `@component-select` IC mode for: TPS63802, BQ25895
+- `/kicad:component-select` IC mode for: TPS63802, BQ25895
 ```

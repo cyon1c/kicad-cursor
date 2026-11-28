@@ -9,8 +9,8 @@ Two modes with a **hard gate** between them. State which mode you are in before 
 
 | Mode | Entry condition | Scope |
 |------|-----------------|-------|
-| **A — IC intake** | `@design-consultant` locked IC intent per block | ICs and electromechanical parts only |
-| **B — Passive finalize** | `@schematic-review` signed off | Passives only |
+| **A — IC intake** | `/kicad:design-consultant` locked IC intent per block | ICs and electromechanical parts only |
+| **B — Passive finalize** | `/kicad:schematic-review` signed off | Passives only |
 
 **Never assign passive LCSC numbers in mode A.** While the user is drawing, passives carry a value field and nothing else.
 
@@ -26,14 +26,14 @@ Symbol names are usually the manufacturer MPN, not the LCSC ID.
 
 ## Shared: JLC lookup
 
-Konnect, read-only (`@konnect`): `load_toolset("jlcpcb_parts")`, then `search_jlcpcb_parts` / `get_jlcpcb_part`. One-time `download_jlcpcb_database`.
+Konnect, read-only (`/kicad:konnect`): `load_toolset("jlcpcb_parts")`, then `search_jlcpcb_parts` / `get_jlcpcb_part`. One-time `download_jlcpcb_database`.
 
 Check: stock, package, basic vs extended, price at build quantity.
 
 ## Shared: import
 
-```powershell
-uv run python scripts/run_step.py fetch-part --lcsc-id C80200
+```bash
+kicad-step fetch-part --lcsc-id C80200
 ```
 
 Symbol repair runs automatically (`fix-symbol-lib`). Set the schematic footprint field to `global:<footprint_name>`.
@@ -55,9 +55,9 @@ Symbol repair runs automatically (`fix-symbol-lib`). Set the schematic footprint
 6. Write `bom-targets.yaml` entry with `status: ic-locked` (LCSC required, `null` only when sourcing is deliberately off-JLC — say so in `notes`).
 7. Append to `design-log/ic-selection.md`: decision, key specs, stock, alternatives rejected.
 
-**Will not:** assign passive LCSC numbers; walk pins (→ `@datasheet-research`).
+**Will not:** assign passive LCSC numbers; walk pins (→ `/kicad:datasheet-research`).
 
-**Hand off:** `@datasheet-research` per locked IC.
+**Hand off:** `/kicad:datasheet-research` per locked IC.
 
 ### Report per IC
 
@@ -82,7 +82,7 @@ Symbol repair runs automatically (`fix-symbol-lib`). Set the schematic footprint
 - [ ] Every passive on the schematic has a value field
 - [ ] Critical values match `research/*/passives-required.md`
 
-If any box fails, stop and hand back to `@schematic-review`.
+If any box fails, stop and hand back to `/kicad:schematic-review`.
 
 1. Build the distinct value/package list from `design-context/as-built.yaml` (group refs by value — one LCSC per value/package, not per ref).
 2. For each group, apply the rating rules in `constraints.md`: capacitor voltage ≥ 2× rail, X7R/X5R for decoupling (no Y5V), 1% resistors by default, tighter where research demands.
@@ -91,7 +91,7 @@ If any box fails, stop and hand back to `@schematic-review`.
 5. Update `bom-targets.yaml` passive entries to `status: passive-locked` with LCSC.
 6. Write `design-log/passive-bom.md`: value → LCSC table with refs, package, rating notes, and any intentional generics.
 
-**Will not:** re-architect blocks, redo pin walkthroughs, or change values — a value change means going back to `@datasheet-research` or `@design-consultant`.
+**Will not:** re-architect blocks, redo pin walkthroughs, or change values — a value change means going back to `/kicad:datasheet-research` or `/kicad:design-consultant`.
 
 ### Report
 

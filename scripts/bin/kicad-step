@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+# Run a cataloged step (steps.yaml) from any directory. Symlink-safe (e.g. ~/.local/bin/kicad-step -> here).
+# Inside a KiCad project folder (one with a .kicad_pro), that folder is the target unless
+# --project/--project-dir or KICAD_PROJECT(_DIR) say otherwise.
+set -e
+self=$(readlink -f -- "$0")
+repoRoot=$(CDPATH= cd -- "$(dirname -- "$self")/../.." && pwd)
+
+if [ -z "${KICAD_PROJECT_DIR:-}" ] && [ -z "${KICAD_PROJECT:-}" ]; then
+    for f in ./*.kicad_pro; do
+        [ -e "$f" ] && export KICAD_PROJECT_DIR="$PWD"
+        break
+    done
+fi
+
+exec uv run --quiet --project "$repoRoot" python "$repoRoot/scripts/run_step.py" "$@"

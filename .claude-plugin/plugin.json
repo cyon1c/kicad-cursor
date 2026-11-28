@@ -1,0 +1,9 @@
+{
+  "name": "kicad",
+  "version": "0.2.0",
+  "description": "Chat-driven KiCad design pipeline: you draw the schematic; skills handle architecture, part selection, datasheet research and review. Konnect MCP read-only.",
+  "author": { "name": "cyon1c", "url": "https://github.com/cyon1c" },
+  "repository": "https://github.com/cyon1c/kicad-cursor",
+  "license": "AGPL-3.0-or-later",
+  "keywords": ["kicad", "pcb", "schematic", "electronics", "lcsc"]
+}

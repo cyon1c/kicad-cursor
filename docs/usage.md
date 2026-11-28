@@ -39,10 +39,10 @@ symbolLibrary:
 List, add, and switch named targets without editing yaml by hand:
 
 ```powershell
-uv run python scripts/manage_projects.py list
-uv run python scripts/manage_projects.py use other-board
-uv run python scripts/manage_projects.py add lab-board C:/path/to/lab-board
-uv run python scripts/manage_projects.py show
+kicad-projects list
+kicad-projects use other-board
+kicad-projects add lab-board C:/path/to/lab-board
+kicad-projects show
 ```
 
 The active target is stored as `activeProject` in `kicad-cursor.yaml`. Steps and scripts use it unless you override for one command.
@@ -63,8 +63,8 @@ Environment variables override the yaml file when set.
 Pass `--project` or `--project-dir` to any step that needs a project:
 
 ```powershell
-uv run python scripts/run_step.py verify-erc --project other-board
-uv run python scripts/run_step.py verify-erc --project-dir C:/path/to/my-board
+kicad-step verify-erc --project other-board
+kicad-step verify-erc --project-dir C:/path/to/my-board
 ```
 
 ## 2. Prepare your KiCad project folder
@@ -104,50 +104,49 @@ Keep datasheet PDFs in your project folder, not in the kicad-cursor repo. When y
       images/
 ```
 
-One `extracted/<pdf-stem>/` directory per source PDF. Agents read `index.md` and `tables/*.yaml` from that folder during `@datasheet-research` and `@component-select` — never the raw PDF.
+One `extracted/<pdf-stem>/` directory per source PDF. Agents read `index.md` and `tables/*.yaml` from that folder during `/kicad:datasheet-research` and `/kicad:component-select` — never the raw PDF.
 
 ```powershell
-uv run python scripts/run_step.py extract-datasheet --pdf datasheets/bq25895.pdf
-uv run python scripts/run_step.py extract-datasheet --all
+kicad-step extract-datasheet --pdf datasheets/bq25895.pdf
+kicad-step extract-datasheet --all
 ```
 
 See [examples/kicad-project-template/datasheets/README.md](../examples/kicad-project-template/datasheets/README.md) for details.
 
 Create the KiCad project in KiCad (`File → New Project`) inside that folder, or open an existing one.
 
-## 3. Open in KiCad and Cursor
+## 3. Open in KiCad and Claude Code
 
 1. **KiCad**: Open your project — you draw the schematic here. Save (Ctrl+S) before asking for a context dump, ERC, or review.
-2. **Cursor**: Open the `kicad-cursor` repo (this toolkit). The agent uses `kicad-cursor.yaml` to find your board.
-
-You can also open a multi-root workspace with both folders if you prefer.
+2. **Claude Code**: start `claude` **in your board's folder**. The `kicad` plugin is loaded from anywhere, and
+   `kicad-step` targets the folder containing the `.kicad_pro` (otherwise `activeProject` in `kicad-cursor.yaml`).
 
 ## 4. Agent workflow
 
 ```text
-@design-consultant   → design.yaml, constraints.md, architecture, IC intent
-@component-select A  → LCSC + fetch-part for ICs (bom-targets: ic-locked)
-@datasheet-research  → extract-datasheet → research/<MPN>/ (values, no LCSC)
+/kicad:design-consultant   → design.yaml, constraints.md, architecture, IC intent
+/kicad:component-select A  → LCSC + fetch-part for ICs (bom-targets: ic-locked)
+/kicad:datasheet-research  → extract-datasheet → research/<MPN>/ (values, no LCSC)
 YOU draw in KiCad    → all passives get value fields; agent never edits .kicad_sch
-@schematic-review    → dump-design-context + verify-erc + value audit + report
-@component-select B  → LCSC for passives (bom-targets: passive-locked)
+/kicad:schematic-review    → dump-design-context + verify-erc + value audit + report
+/kicad:component-select B  → LCSC for passives (bom-targets: passive-locked)
 ```
 
 Invoke **one** skill per session:
 
 | Skill | Purpose |
 |-------|---------|
-| `@design-consultant` | Requirements, power tree, blocks, IC intent |
-| `@component-select` | LCSC and library — IC mode, then passive mode after review |
-| `@datasheet-research` | Per-IC pins, strapping, required passives |
-| `@schematic-draw` | Drawing briefs for you; agent does not draw |
-| `@schematic-review` | Context dump + ERC + value audit + intent diff |
-| `@design-log` | Append decisions, or catch up on a board |
-| `@kicad-project` | Config, library paths, project conventions |
-| `@konnect` | JLC lookup and read-only context via MCP |
-| `@kicad-step` | Run a single cataloged script |
-| `@design-verify` | Ad-hoc ERC/DRC (only when you ask) |
-| `@pcb-layout` | Deferred — layout phase not defined yet |
+| `/kicad:design-consultant` | Requirements, power tree, blocks, IC intent |
+| `/kicad:component-select` | LCSC and library — IC mode, then passive mode after review |
+| `/kicad:datasheet-research` | Per-IC pins, strapping, required passives |
+| `/kicad:schematic-draw` | Drawing briefs for you; agent does not draw |
+| `/kicad:schematic-review` | Context dump + ERC + value audit + intent diff |
+| `/kicad:design-log` | Append decisions, or catch up on a board |
+| `/kicad:kicad-project` | Config, library paths, project conventions |
+| `/kicad:konnect` | JLC lookup and read-only context via MCP |
+| `/kicad:kicad-step` | Run a single cataloged script |
+| `/kicad:design-verify` | Ad-hoc ERC/DRC (only when you ask) |
+| `/kicad:pcb-layout` | Deferred — layout phase not defined yet |
 
 Details in [workflow.md](workflow.md).
 
@@ -156,15 +155,15 @@ Details in [workflow.md](workflow.md).
 List available steps:
 
 ```powershell
-uv run python scripts/run_step.py --list
+kicad-step --list
 ```
 
 Run a step (uses `activeProject` from config):
 
 ```powershell
-uv run python scripts/run_step.py dump-design-context
-uv run python scripts/run_step.py extract-datasheet --pdf datasheets/bq25895.pdf
-uv run python scripts/run_step.py draw-board-outline
+kicad-step dump-design-context
+kicad-step extract-datasheet --pdf datasheets/bq25895.pdf
+kicad-step draw-board-outline
 ```
 
 See [steps.md](steps.md) for the token-efficient step catalog pattern.

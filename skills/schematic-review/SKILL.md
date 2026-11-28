@@ -14,8 +14,8 @@ Answers **"did we?"** against the saved schematic. Every item below is required 
 
 ## 1. Refresh design context
 
-```powershell
-uv run python scripts/run_step.py dump-design-context
+```bash
+kicad-step dump-design-context
 ```
 
 Then read from `<projectDir>/design-context/`:
@@ -28,8 +28,8 @@ Then read from `<projectDir>/design-context/`:
 
 ## 2. Run ERC (mandatory)
 
-```powershell
-uv run python scripts/run_step.py verify-erc
+```bash
+kicad-step verify-erc
 ```
 
 Triage every violation: separate errors from warnings, map each to a ref or net, and give a verdict — fix, waive with rationale, or expected. An unexplained error blocks the gate.
@@ -52,7 +52,7 @@ Report differences as expected vs as-built vs verdict. Flag conflicts with consu
 
 Every passive ref must have a value field. From `as-built.yaml`:
 
-```powershell
+```bash
 rg -A3 "reference: [CRL]\d+" <projectDir>/design-context/as-built.yaml | rg -B1 'value: (""|TBD|~)'
 ```
 
@@ -91,12 +91,12 @@ Criticality comes from `research/*/passives-required.md` (`critical: yes`). **Mi
 - [ ] Every passive ref has a value field
 - [ ] Critical passives match research/*/passives-required.md
 
-**Verdict:** pass → `@component-select` passive mode | blocked: <list>
+**Verdict:** pass → `/kicad:component-select` passive mode | blocked: <list>
 ```
 
 ## Will not
 
-- Edit the schematic — report findings as instructions for the user (`@schematic-draw` can turn them into a drawing brief)
-- Assign passive LCSC numbers → `@component-select` passive mode
-- Replace architecture decisions without flagging the conflict → `@design-consultant`
+- Edit the schematic — report findings as instructions for the user (`/kicad:schematic-draw` can turn them into a drawing brief)
+- Assign passive LCSC numbers → `/kicad:component-select` passive mode
+- Replace architecture decisions without flagging the conflict → `/kicad:design-consultant`
 - Run DRC unless the user asks — optional in the schematic phase

@@ -5,14 +5,14 @@ description: PCB layout guidance — placement order, routing priorities, pours.
 
 # PCB Layout (deferred phase)
 
-> **Status: deferred.** The layout workflow is not defined yet — see `docs/workflow-plan.md` §7 Deferred. Do not start layout until the schematic has passed `@schematic-review` and passives are `passive-locked`. The guidance below is a starting point, not a role definition.
+> **Status: deferred.** The layout workflow is not defined yet — see `docs/workflow-plan.md` §7 Deferred. Do not start layout until the schematic has passed `/kicad:schematic-review` and passives are `passive-locked`. The guidance below is a starting point, not a role definition.
 
 ## Prerequisites
 
 - KiCad PCB Editor open with target board loaded
 - IPC API server enabled
 - Schematic updated and netlist imported (or board synced from schematic)
-- MCP server `konnect` connected; load PCB toolsets as needed (`@konnect`)
+- MCP server `konnect` connected; load PCB toolsets as needed (`/kicad:konnect`)
 
 ## Placement order
 
@@ -50,7 +50,7 @@ KiCad IPC does not expose a native autorouter API. Options:
 
 ## After layout changes
 
-Always run `@design-verify` (DRC) only when the user asks.
+Always run `/kicad:design-verify` (DRC) only when the user asks.
 
 ## Live feedback
 

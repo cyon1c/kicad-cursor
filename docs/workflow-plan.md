@@ -28,7 +28,7 @@ See also: [workflow.md](workflow.md) (user-facing guide derived from this plan),
 
 Five conceptual specialists. **Documentation** is a shared artifact layer, not a separate chat persona.
 
-Step 4 of §3 is the human's, so it has no specialist — `@schematic-draw` only turns consultant intent and research into a drawing brief for the user, and never touches `.kicad_sch`.
+Step 4 of §3 is the human's, so it has no specialist — `/kicad:schematic-draw` only turns consultant intent and research into a drawing brief for the user, and never touches `.kicad_sch`.
 
 ### 2.1 PCB Design Consultant
 
@@ -55,7 +55,7 @@ Step 4 of §3 is the human's, so it has no specialist — `@schematic-draw` only
 
 **Prior art:** Power-tree and architecture discussions in [Targeted electrical engineering concepts](c8465072-d3ce-41cb-8888-bfc3ed2d9370); open-question driven gaps in [Extract skill on SSD1315 PDF](c5348864-71c8-4512-8836-5638828976cd).
 
-**Skill:** `@design-consultant` (implemented).
+**Skill:** `/kicad:design-consultant` (implemented).
 
 ---
 
@@ -92,11 +92,11 @@ Step 4 of §3 is the human's, so it has no specialist — `@schematic-draw` only
 
 **Prior art:** BQ25619 pin and application-schematic threads in [Targeted electrical engineering concepts](c8465072-d3ce-41cb-8888-bfc3ed2d9370); IS31FL3236A grouped pin walkthrough in [LEDs and drivers discussion](cecacd34-7cc6-4cd8-9cd1-d12475b7fc4c).
 
-**Skill:** `@datasheet-research` (implemented). Output template: `examples/kicad-project-template/research/_template/`.
+**Skill:** `/kicad:datasheet-research` (implemented). Output template: `examples/kicad-project-template/research/_template/`.
 
 **Tools:**
 ```powershell
-uv run python scripts/run_step.py extract-datasheet --pdf datasheets/<file>.pdf
+kicad-step extract-datasheet --pdf datasheets/<file>.pdf
 ```
 
 ---
@@ -130,12 +130,12 @@ uv run python scripts/run_step.py extract-datasheet --pdf datasheets/<file>.pdf
 
 **Prior art:** JLC search and `fetch-part` in [Low current RGB LEDs](d43950d5-c367-48e9-9f8f-5ba59542108b); passive policy in [PCB design next steps](cb361dd1-4829-431d-9bba-c27f41de54b0).
 
-**Skill:** `@component-select` (refactored into explicit mode A / mode B).
+**Skill:** `/kicad:component-select` (refactored into explicit mode A / mode B).
 
 **Tools:**
 ```powershell
-uv run python scripts/run_step.py fetch-part --lcsc-id C80200
-uv run python scripts/run_step.py fix-symbol-lib
+kicad-step fetch-part --lcsc-id C80200
+kicad-step fix-symbol-lib
 ```
 Konnect (v0.3.0+): `download_jlcpcb_database`, `get_jlcpcb_part`, `search_jlcpcb_parts` — **read/lookup only**.
 
@@ -156,13 +156,13 @@ Konnect (v0.3.0+): `download_jlcpcb_database`, `get_jlcpcb_part`, `search_jlcpcb
 
 1. **Refresh design context**
    ```powershell
-   uv run python scripts/run_step.py dump-design-context
+   kicad-step dump-design-context
    ```
    Read `design-context/system-map.md`, `open-questions.md`, `as-built.yaml`.
 
 2. **Run ERC**
    ```powershell
-   uv run python scripts/run_step.py verify-erc
+   kicad-step verify-erc
    ```
    Triage violations; distinguish errors vs warnings; map to refs/nets.
 
@@ -187,9 +187,9 @@ Konnect (v0.3.0+): `download_jlcpcb_database`, `get_jlcpcb_part`, `search_jlcpcb
 
 **Prior art:** `dump-design-context` origin in [PCB design next steps](cb361dd1-4829-431d-9bba-c27f41de54b0); connectivity review patterns in [Schematic errors resolution](6c34d766-232f-434f-8a38-8fad8f1292f8).
 
-**Skill:** `@schematic-review` (implemented; supersedes ad-hoc `@design-verify` for review passes). Report template: `examples/kicad-project-template/design-log/reviews/README.md`.
+**Skill:** `/kicad:schematic-review` (implemented; supersedes ad-hoc `/kicad:design-verify` for review passes). Report template: `examples/kicad-project-template/design-log/reviews/README.md`.
 
-**Note on `@design-verify`:** Keep as opt-in for ad-hoc ERC/DRC outside formal review. **Formal schematic review always includes ERC.**
+**Note on `/kicad:design-verify`:** Keep as opt-in for ad-hoc ERC/DRC outside formal review. **Formal schematic review always includes ERC.**
 
 ---
 
@@ -215,7 +215,7 @@ Konnect (v0.3.0+): `download_jlcpcb_database`, `get_jlcpcb_part`, `search_jlcpcb
 
 **Prior art:** `design-decisions.md` updates in [Low current RGB LEDs](d43950d5-c367-48e9-9f8f-5ba59542108b).
 
-**Skill:** `@design-log` (implemented — append conventions, catch-up mode, synthesis rules).
+**Skill:** `/kicad:design-log` (implemented — append conventions, catch-up mode, synthesis rules).
 
 ---
 
@@ -223,37 +223,37 @@ Konnect (v0.3.0+): `download_jlcpcb_database`, `get_jlcpcb_part`, `search_jlcpcb
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. DESIGN CONSULTATION (@design-consultant)                     │
+│ 1. DESIGN CONSULTATION (/kicad:design-consultant)                     │
 │    design.yaml, constraints.md, architecture, openQuestions   │
 │    Output: IC choices per block (MPN intent)                    │
 └────────────────────────────┬────────────────────────────────────┘
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 2. IC INTAKE (@component-select IC mode)                        │
+│ 2. IC INTAKE (/kicad:component-select IC mode)                        │
 │    LCSC, fetch-part, bom-targets (ICs only), design-log/ic-*    │
 └────────────────────────────┬────────────────────────────────────┘
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 3. DATASHEET RESEARCH (@datasheet-research) — per IC, parallel  │
+│ 3. DATASHEET RESEARCH (/kicad:datasheet-research) — per IC, parallel  │
 │    extract-datasheet → research/<mpn>/                          │
 │    passives-required.md (roles/values, LCSC TBD)              │
 └────────────────────────────┬────────────────────────────────────┘
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │ 4. USER DRAWS SCHEMATIC (KiCad — human only)                    │
-│    @schematic-draw gives briefs; the agent never draws          │
+│    /kicad:schematic-draw gives briefs; the agent never draws          │
 │    Generic C/R/L symbols OK; ALL passives get value fields      │
 │    ICs use global: symbols from library                         │
 └────────────────────────────┬────────────────────────────────────┘
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 5. SCHEMATIC REVIEW (@schematic-review)                         │
+│ 5. SCHEMATIC REVIEW (/kicad:schematic-review)                         │
 │    dump-design-context + verify-erc + value audit + intent diff │
 │    Gate: topology OK, ERC clean or explained, values present    │
 └────────────────────────────┬────────────────────────────────────┘
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 6. PASSIVE FINALIZE (@component-select passive mode)             │
+│ 6. PASSIVE FINALIZE (/kicad:component-select passive mode)             │
 │    LCSC for passives, bom-targets update, design-log/passive-*  │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -350,7 +350,7 @@ parts:
 
 ## 5. Tool mapping
 
-### 5.1 Step runner (`@kicad-step`)
+### 5.1 Step runner (`/kicad:kicad-step`)
 
 | Step | Role(s) | Notes |
 |------|---------|-------|
@@ -364,7 +364,7 @@ parts:
 
 `run-block` is retired (moved to `retiredSteps:` in `steps.yaml`) — agents no longer generate schematic content.
 
-### 5.2 Konnect MCP (`@konnect`)
+### 5.2 Konnect MCP (`/kicad:konnect`)
 
 | Allowed (schematic phase) | Forbidden |
 |---------------------------|-----------|
@@ -403,7 +403,7 @@ Schematic changed since last dump. **Mitigation:** Review skill mandates fresh `
 
 ### Konnect scope creep
 
-Repo skills previously mentioned schematic placement (`block-draft`, `@konnect` wiring). **Mitigation (done):** `block-draft` and `schematic-design` retired in favor of `@schematic-draw` (human briefs) and `@schematic-review`; `@konnect` rewritten read-only; cursor rule states agents never edit schematics.
+Repo skills previously mentioned schematic placement (`block-draft`, `/kicad:konnect` wiring). **Mitigation (done):** `block-draft` and `schematic-design` retired in favor of `/kicad:schematic-draw` (human briefs) and `/kicad:schematic-review`; `/kicad:konnect` rewritten read-only; cursor rule states agents never edit schematics.
 
 ### Placeholder passives without values
 
@@ -427,9 +427,9 @@ Agent marks review complete without ERC. **Mitigation:** `schematic-review` skil
 ### Phase 1 — Principles in agent config
 
 - [x] Update `.cursor/rules/kicad-cursor.mdc`: no schematic editing; IC-before-passive selection; role table
-- [x] Rewrite `@konnect` skill: read-only for schematics; JLC + context only
+- [x] Rewrite `/kicad:konnect` skill: read-only for schematics; JLC + context only
 - [x] Retire `@block-draft` and `@schematic-design`; `run-block` moved to `retiredSteps:` and dropped from `run_step.py`
-- [x] Clarify `@design-verify` vs `@schematic-review` (ad-hoc check vs review that always runs ERC)
+- [x] Clarify `/kicad:design-verify` vs `/kicad:schematic-review` (ad-hoc check vs review that always runs ERC)
 
 ### Phase 2 — Project templates
 
@@ -451,7 +451,7 @@ Agent marks review complete without ERC. **Mitigation:** `schematic-review` skil
 
 - [x] `docs/workflow.md` — user-facing shortened guide derived from this plan
 - [x] Remove stale references to Konnect schematic placement in README, usage.md, setup.md
-- [x] PCB workflow placeholder — `docs/workflow.md` "PCB layout — deferred"; `@pcb-layout` marked deferred
+- [x] PCB workflow placeholder — `docs/workflow.md` "PCB layout — deferred"; `/kicad:pcb-layout` marked deferred
 
 ### Deferred
 

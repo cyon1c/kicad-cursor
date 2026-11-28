@@ -18,12 +18,12 @@ Location: `<projectDir>/design-log/`
 | File | Owner | Content |
 |------|-------|---------|
 | `decisions.md` | all roles | ADR-style: date, role, decision, rationale, alternatives rejected, affects |
-| `open-questions.md` | `@design-consultant` queues; any role closes | Single human-facing question list |
-| `ic-selection.md` | `@component-select` mode A | Locked ICs with LCSC and rationale |
-| `passive-bom.md` | `@component-select` mode B | Value → LCSC, after review only |
-| `architecture.md` | `@design-consultant` | Power tree, data paths, block interfaces, risks |
-| `reviews/<date>.md` | `@schematic-review` | ERC summary and findings |
-| `context-snapshots.md` | `@schematic-review` | Dump timestamp vs schematic mtime |
+| `open-questions.md` | `/kicad:design-consultant` queues; any role closes | Single human-facing question list |
+| `ic-selection.md` | `/kicad:component-select` mode A | Locked ICs with LCSC and rationale |
+| `passive-bom.md` | `/kicad:component-select` mode B | Value → LCSC, after review only |
+| `architecture.md` | `/kicad:design-consultant` | Power tree, data paths, block interfaces, risks |
+| `reviews/<date>.md` | `/kicad:schematic-review` | ERC summary and findings |
+| `context-snapshots.md` | `/kicad:schematic-review` | Dump timestamp vs schematic mtime |
 
 `design-context/` is **generated** by `dump-design-context` — never hand-edit it. Promote items from `design-context/open-questions.md` into `design-log/open-questions.md` when they need a human decision.
 

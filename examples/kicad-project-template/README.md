@@ -21,10 +21,10 @@ Register this folder as a KiCad user template so **File → New Project** copies
 ### Starting a new board
 
 1. **File → New Project** → **User Templates** → **kicad-cursor board** → choose location and project name.
-2. Add the folder as a project target: `uv run python scripts/manage_projects.py add my-board C:/path/to/folder` (see `kicad-cursor.yaml.example`).
+2. Add the folder as a project target: `kicad-projects add my-board C:/path/to/folder` (see `kicad-cursor.yaml.example`).
 3. Edit `design.yaml`, `constraints.md`, and `bom-targets.yaml` — the shipped examples are placeholders, not defaults to keep.
 4. Add datasheet PDFs under `datasheets/` and run `extract-datasheet` (see [datasheets/README.md](datasheets/README.md)).
-5. Start a session with `@design-consultant`.
+5. Start a session with `/kicad:design-consultant`.
 
 KiCad renames files that contain the template folder name to match the new project name (e.g. `kicad-cursor-board.kicad_pro` → `my-gadget.kicad_pro`). Other paths (`design.yaml`, `datasheets/`, etc.) keep their names. Dotfiles (e.g. `.gitkeep`) are not copied.
 
@@ -48,20 +48,20 @@ Then:
 2. Point `kicad-cursor.yaml` at the folder (see repo root `kicad-cursor.yaml.example`).
 3. Edit `design.yaml`, `constraints.md`, and `bom-targets.yaml` for your board — the examples are placeholders, not defaults to keep.
 4. Add datasheet PDFs under `datasheets/` and run `extract-datasheet` (see [datasheets/README.md](datasheets/README.md)).
-5. Start a session with `@design-consultant`.
+5. Start a session with `/kicad:design-consultant`.
 
 ## What each file is for
 
 | Path | Owner | Purpose |
 |------|-------|---------|
-| `design.yaml` | `@design-consultant` | Intent: rails, blocks, constraints, open questions |
-| `constraints.md` | `@design-consultant` | Schematic/PCB rules, value-field policy, review gate |
-| `bom-targets.yaml` | `@component-select` | Symbol → LCSC registry with selection `status` |
+| `design.yaml` | `/kicad:design-consultant` | Intent: rails, blocks, constraints, open questions |
+| `constraints.md` | `/kicad:design-consultant` | Schematic/PCB rules, value-field policy, review gate |
+| `bom-targets.yaml` | `/kicad:component-select` | Symbol → LCSC registry with selection `status` |
 | `datasheets/` | user + `extract-datasheet` | Source PDFs and extracted markdown/tables |
-| `research/<MPN>/` | `@datasheet-research` | Per-IC overview, pins, required passives |
+| `research/<MPN>/` | `/kicad:datasheet-research` | Per-IC overview, pins, required passives |
 | `design-log/` | all roles | Decisions, open questions, IC and passive selections, reviews |
 | `design-context/` | `dump-design-context` | **Generated** as-built netlist context — do not hand-edit |
-| `blocks/<id>.yaml` | `@design-consultant` | Optional per-block intent: ICs, passives by role, nets |
+| `blocks/<id>.yaml` | `/kicad:design-consultant` | Optional per-block intent: ICs, passives by role, nets |
 | `meta/` | user | KiCad template picker only (`info.html`, optional `icon.png`) — not copied to new projects |
 
 `research/_template/` and `design-log/` ship pre-filled with example rows so the shape is obvious. Replace or delete them once your board has real content.

@@ -9,33 +9,33 @@ description: Execute a single cataloged KiCad operation via run_step.py. Use whe
 
 Never grep kipy, read API docs, or run ERC/DRC unless the step id is `verify-erc`, `verify-drc`, or `verify-all`, or the user explicitly asks to verify.
 
-```powershell
-uv run python scripts/run_step.py <step-id> [--project my-board] [--project-dir C:/path/to/my-board] [--lcsc-id C80200]
+```bash
+kicad-step <step-id> [--project my-board] [--project-dir ~/projects/my-board] [--lcsc-id C80200]
 ```
 
 Project path comes from `activeProject` in `kicad-cursor.yaml` unless `--project` or `--project-dir` is passed.
 
-List steps: `uv run python scripts/run_step.py --list`
+List steps: `kicad-step --list`
 
 ## Step ids
 
 | Id | When | Role |
 |----|------|------|
-| `extract-datasheet` | PDF → `<project>/datasheets/extracted/<stem>/` — requires `--pdf` | `@datasheet-research` |
-| `fetch-part` | Import LCSC part — requires `--lcsc-id` | `@component-select` |
-| `fix-symbol-lib` | After `fetch-part` | `@component-select` |
-| `dump-design-context` | Export as-built schematic context to `<project>/design-context/` | `@schematic-review` |
-| `verify-erc` | Schematic ERC — required in a formal review | `@schematic-review`, `@design-verify` |
-| `verify-drc` | PCB DRC (board must be saved first) — optional in schematic phase | `@design-verify` |
-| `verify-all` | User explicitly wants both | `@design-verify` |
+| `extract-datasheet` | PDF → `<project>/datasheets/extracted/<stem>/` — requires `--pdf` | `/kicad:datasheet-research` |
+| `fetch-part` | Import LCSC part — requires `--lcsc-id` | `/kicad:component-select` |
+| `fix-symbol-lib` | After `fetch-part` | `/kicad:component-select` |
+| `dump-design-context` | Export as-built schematic context to `<project>/design-context/` | `/kicad:schematic-review` |
+| `verify-erc` | Schematic ERC — required in a formal review | `/kicad:schematic-review`, `/kicad:design-verify` |
+| `verify-drc` | PCB DRC (board must be saved first) — optional in schematic phase | `/kicad:design-verify` |
+| `verify-all` | User explicitly wants both | `/kicad:design-verify` |
 | `draw-board-outline` | Board outline / Edge.Cuts rectangle — PCB phase | — |
 | `test-ipc` | Confirm KiCad IPC + PCB editor connection — PCB phase | — |
 
-Full catalog: [steps.yaml](../../../steps.yaml)
+Full catalog: [steps.yaml](../../steps.yaml)
 
 ## Retired
 
-`run-block` is retired (`retiredSteps:` in steps.yaml). Agents no longer generate schematic content — the user draws. Use `@schematic-draw` for a drawing brief and `@schematic-review` to check the result.
+`run-block` is retired (`retiredSteps:` in steps.yaml). Agents no longer generate schematic content — the user draws. Use `/kicad:schematic-draw` for a drawing brief and `/kicad:schematic-review` to check the result.
 
 ## On failure
 
